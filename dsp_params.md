@@ -1,0 +1,1741 @@
+----------
+  
+[configMarkdown](configMarkdown.html) | [devnotes](devnotes.html) | [DiasporaCredits](DiasporaCredits.html) | [dsp_params](dsp_params.html)	| [dsp_readme](dsp_readme.html) 
+
+-----------
+
+
+--#File Revison 04/2013# 
+--#\-package:0C160701#
+
+    ##################################################################################################################
+    # THIS IS not the CONFIG FILE - PLEASE USE \%YourSc4Dir%\Apps/patch.dat
+    # If you are looking for  the library of tokens: scroll down.
+    # ANY ADDITIONS, CORRECTIONS AND UPDATES HIGHLY APPRECIATED:
+    ##################################################################################################################
+    #
+    # dsp. OVERVIEW - the Diaspora "Object" 
+    # How to use this file
+    # 
+    # - Part 1: User function reference
+    #			(programmers reference in part 4, see also LUA file in dsp_pack.dat!)
+    ###################################################################################################################
+    
+
+### - CORE FUNCTIONS Diaspora dsp for Sim City 4
+###
+	## General
+	########################################################
+	The general functions map direct to sc4' LUA interface.
+	They are triggered by the token's first field.
+	The second field declares a certain class value to be tracked.	
+	#
+	# Main dsp functions (user triggers in patch.dat)
+	##
+	dsp.automataGetSourceBuildingCount(key) // GET  // #0xd0000a
+			Template: #0xd0000a#0x1305# --passenger rail
+			sc4: sc4game.automata.get_source_building_count(hex2dec(key))
+			- convenience counter for lots of custom game objects and sets....
+	##
+	dsp.game_values(..) // GET // #0xB0
+		Template: #0xB0#ga_fire_coverage#-- average level of protection for all zoned cells. (0,100)
+		sc4: game.ga_fire_coverage
+	##
+	dsp.game_constants(..) // GET // #0xC0  // 
+		Template: #0xc0#g_day#Day in month (ingame)
+	##
+	dsp.tuning_constants(..) //GET/SET  // #0xD0 + #0xDD // 
+		Template GET: #0xd0#NUKE_CITY_POP#Population to be reached to build a nuke.
+		Template SET: #0xdd#NUKE_CITY_POP#100000#Set new.
+		sc4: tuning_constants.NUKE_CITY_POP = 85000
+	##
+	dsp.special_buildings(..) //GET // #0xE0
+		Template: #0xe0#MayorHouse=hex2dec('031F0000')#???test
+		sc4: special_buildings.MayorHouse = hex2dec('031F0000')
+	##	
+	dsp.game_trends(..)  //  GET   //  #0xF0
+		Template: #0xf0#G_POWER_PRODUCED# -- power produced
+		sc4: game_trends.G_POWER_PRODUCED 
+
+	#############################################
+	### - Convenience functions: #0xd...., #0xffff..
+	##
+	The convenience functions are triggered the same way as the general functions.
+	Timestamps, funds manipulation, extra comments.
+	##
+	#
+	dsp.timestamp(sims/player, serial/human) 	#	##ingame timestamp convenience function
+		Sim's/player's current date and time. Serial or ymd-h date format.
+		sc4: 	game.g_day, game.g_month, game.g_year -- some constant-based year count. At this point the initial (for a new city) year is 2000.
+				game.g_year_count = 0 -- zero-based year count. For new cities this is set to zero, increasing by 1 every game year. 
+				game.g_date = 0
+	#
+	dsp.funds(+-1234) // GET / SET  // #0xfffff1 
+		- funds manipulation
+		Template: #0xfffff1#+-0# 0 for GET, +-12345 for SET. 
+		sc4: sc4game.budget.total_funds() - Kontostand GET
+			 sc4game.budget.deposit_funds()  - funds +- SET
+	#		 
+	function dsp.saveTo(data, 0, comment) // SET // #0xfffff0
+		- Create commented user comment (wow!) in logfile..
+		Template: #0xfffff0# User comment, no breaks, LF's or \escape. <i style="color:red;">HTML allowed</i>.<script type="javascript">print('JS too.');</script>
+
+	################################
+	###	- EXPERIMENTAl functions
+	#
+	dsp.eval(data,line/file)   // DO // #ddd000
+		Dictionary to inject LUA blocks from external files:
+		call dynamic functions from patchfile.
+		# not implemented in this version (04/2013).
+	#
+	dsp.createAdvisor(params)
+		Create new advisors from dsp.eval()
+		# not implemented (04/2013)
+		
+	#################################	
+	
+	
+	
+#############################################################################################
+
+    #############################################################################################
+    #
+    # dsp TOKENS - dsp  trigger/game object 'dictionary'
+    # - Part 2: configuration parameter / game objects repository / valid tokens 
+    # 
+    # Approx. 500+ parameters from SC4RH, (hopefully) working with dsp configs.
+    # 
+    # WORK IN PROGRESS - 
+    # The contents of this section have not all been tested. A nice-to-have would be a list of
+    # working #???#???'???? strings as a copy and paste library. Also, there is an immense amount
+    # of 'unregistered' game objects and sets...
+    #
+    # If you have updates or additions to this file, please post them.
+    #############################################################################################
+    # Base file from  http://legacy.simvision.net/hostedpictures/Simcyclopedia/LUA_Constants.txt
+    ###
+    # This section provides about a thousand candidates to monitor.
+    #############################################################################################
+    
+    #############################################################################################
+        
+    -- Safety
+    
+    -- Fire-related ----------
+    #0xB0#g_fire_funding_p# 
+    #0xB0#g_fire_station_count#
+    #0xB0#ga_flammability#
+    #0xB0#ga_fire_coverage#-- average level of protection for all zoned cells. (0,100)
+    #0xB0#g_fire_coverage_p#-- percentage of all zoned cells whose f. voverage is > 0
+    #0xB0#g_fire_strike#-- set to non-zero if there a fire strike is going
+    #0xB0#g_fire_strike_chance#-- % chance a strike will start this month
+    #0xB0#g_fire_repath_attempts#
+    
+    #0xB0#l_flammability_h#-- the hot spot value
+    #0xB0#l_flammability_h_subject#-- the hot spot location 
+    #0xB0#l_fire_funding_p#-- for the fire station with the minimum funding
+    #0xB0#l_fire_funding_p_subject#-- the fire station for the value above
+    #0xB0#l_fire_station_no_roads#-- non-zero if there is a fire station with no access 
+    #0xB0#l_fire_station_no_roads_subject#-- the fire station object above
+    
+    
+    -- Police-related 
+    #0xB0#g_police_funding_p#
+    #0xB0#ga_crime#
+    #0xB0#g_jail_capacity#
+    #0xB0#g_inmate_count#
+    #0xB0#g_criminal_count#
+    #0xB0#g_crime_commited_count#
+    #0xB0#g_arrest_count#
+    #0xB0#g_police_station_count#
+    #0xB0#g_jail_count#
+    #0xB0#g_police_strike#
+    #0xB0#g_police_strike_chance#
+    #0xB0#ga_police_coverage#
+    #0xB0#g_police_coverage_p#
+    #0xB0#g_jailbreak#
+    #0xB0#g_police_repath_attempts#
+    
+    #0xB0#l_crime_h#-- crime hot spot
+    #0xB0#l_crime_h_subject#-- the map location for the value above 
+    #0xB0#l_police_no_roads#-- non zero if there is a police station with no road access 
+    #0xB0#l_police_no_roads_subject#-- the police station for the above case 
+    #0xB0#l_police_funding_p#-- minimum amount of funding among all police stations 
+    #0xB0#l_police_funding_p_subject#-- the police station for the above case 
+    
+    -- Disaster-related 
+    #0xB0#g_disasters_in_progress#
+    #0xB0#g_disasters_damage_cost#
+    #0xB0#g_disasters_damage_building_count#
+    #0xB0#g_disasters_police_dispatch_effectiveness#
+    #0xB0#g_disasters_fire_dispatch_effectiveness#
+    #0xB0#g_disasters_riot_ended#
+    #0xB0#g_disasters_riot_started#
+    #0xB0#g_disasters_fire_ended#
+    #0xB0#g_disasters_fire_started#
+    #0xB0#g_disasters_fire_cause_arson#
+    #0xB0#g_disasters_fire_cause_effects#
+    #0xB0#g_disasters_fire_cause_flammability#
+    
+    ------------------------------------------------------------------------------------------
+    -- Utility 
+    
+    -- Power ---------------
+    #0xB0#g_power_funding_p#
+    #0xB0#g_power_plant_count#
+    #0xB0#g_power_plant_count_coal#
+    #0xB0#g_power_plant_count_gas#
+    #0xB0#g_power_plant_count_oil#
+    #0xB0#g_power_plant_count_wind#
+    #0xB0#g_power_plant_count_solar#
+    #0xB0#g_power_plant_count_nuclear#
+    #0xB0#g_power_plant_count_waste#
+    #0xB0#g_power_plant_count_fusion#
+    #0xB0#g_aged_power_plant_count#-- those over 80% or their life
+    #0xB0#g_power_pole_count#
+    #0xB0#g_power_production_capacity#
+    #0xB0#g_power_consumed#
+    #0xB0#g_power_imported#
+    #0xB0#g_power_exported#
+    #0xB0#g_overworked_power_plant_count#-- for those working over their capacity
+    #0xB0#g_unpowered_building_count#
+    #0xB0#g_power_strike#
+    #0xB0#g_power_strike_chance#
+    #0xB0#l_power_plant_funding_pl#
+    #0xB0#l_power_plant_funding_pl_subject#
+    #0xB0#l_power_plant_age_h#
+    #0xB0#l_power_plant_age_h_subject#
+    
+    -- Plumbing ---------------
+    #0xB0#g_water_funding_p#
+    #0xB0#g_water_source_count#
+    #0xB0#g_water_production_capacity#
+    #0xB0#g_water_consumed#
+    #0xB0#g_water_imported#
+    #0xB0#g_water_exported#
+    #0xB0#g_water_pipe_count#
+    #0xB0#g_water_distressed_pipe_count#
+    #0xB0#g_water_burst_pipe_count#
+    #0xB0#g_watered_building_count#
+    #0xB0#g_unwatered_building_count#
+    #0xB0#g_water_pollution_pump_shutdown_count#-- the count for pump shutdowns for pollution reasons
+    #0xB0#l_water_building_funding_pl#
+    #0xB0#l_water_building_funding_pl_subject#
+    #0xB0#l_water_building_age_h#
+    #0xB0#l_water_building_age_h_subject#
+    
+    -- Pollution ---------------
+    #0xB0#g_pollution_funding_p#
+    #0xB0#g_incinerator_count#
+    #0xB0#g_waste_to_energy_building_count#
+    #0xB0#g_water_treatment_plant_count#
+    #0xB0#g_recycling_center_count#
+    #0xB0#g_incinerator_capacity_daily#
+    #0xB0#g_waste_to_energy_capacity_daily#
+    #0xB0#g_recycling_center_effect_p#-- % effect of recycling centers
+    #0xB0#ga_air_pollution#
+    #0xB0#ga_water_pollution#
+    #0xB0#ga_garbage_pollution#
+    #0xB0#g_uncollected_garbage#
+    #0xB0#g_landfill_capacity#
+    #0xB0#g_available_landfill_capacity#
+    
+    #0xB0#g_garbage_produced#
+    #0xB0#g_garbage_imported#
+    #0xB0#g_garbage_exported#
+    #0xB0#g_garbage_recycled#
+    #0xB0#g_garbage_to_energy#-- garbage converted to energy this month 
+    #0xB0#g_garbage_to_landfill#-- garbage sent to landfill this month 
+    
+    #0xB0#l_air_pollution_h#-- local air pollution
+    #0xB0#l_air_pollution_h_subject#-- location object for the above value
+    #0xB0#l_water_pollution_h#-- local water pollution
+    #0xB0#l_water_pollution_h_subject#-- location object for the above value
+    #0xB0#l_uncollected_garbage_h#--local garbage pollution
+    #0xB0#l_uncollected_garbage_h_subject#-- location object for the above value
+    
+    -- Neighbor deals -------------
+    #0xB0#g_nd_count_buy_water#
+    #0xB0#g_nd_count_sell_water#
+    #0xB0#g_nd_count_buy_power#
+    #0xB0#g_nd_count_sell_power#
+    #0xB0#g_nd_count_export_garbage#
+    #0xB0#g_nd_count_import_garbage#
+    
+    #0xB0#g_nd_connection_present_water#
+    #0xB0#g_nd_connection_present_power#
+    #0xB0#g_nd_connection_present_garbage#
+    
+    #0xB0#g_nd_can_buy_water#
+    #0xB0#g_nd_can_buy_power#
+    #0xB0#g_nd_can_export_garbage#
+    #0xB0#g_nd_can_sell_water#
+    #0xB0#g_nd_can_sell_power#
+    #0xB0#g_nd_can_import_garbage#
+    
+    ------------------------------------------------------------------------------------------------
+    -- Transportation 
+    
+    -- Traffic -------------------
+    #0xB0#g_pothole_count#
+    #0xB0#g_road_funding_p#
+    #0xB0#g_masstransit_funding_p#
+    #0xB0#g_transit_strike#
+    #0xB0#g_transit_strike_chance#
+    #0xB0#ga_freight_trip_length#
+    
+    #0xB0#g_bus_station_count#
+    #0xB0#ga_bus_station_utilization_p#
+    #0xB0#l_bus_station_utilization_pl#
+    #0xB0#l_bus_station_utilization_pl_subject#
+    
+    #0xB0#g_monorail_station_count#
+    #0xB0#ga_monorail_station_utilization_p#
+    #0xB0#l_monorail_station_utilization_pl#
+    #0xB0#l_monorail_station_utilization_pl_subject#
+    
+    #0xB0#g_monorail_station_count#
+    #0xB0#ga_monorail_station_utilization_p#
+    #0xB0#l_monorail_station_utilization_pl#
+    #0xB0#l_monorail_station_utilization_pl_subject#
+    
+    #0xB0#g_train_station_count#
+    #0xB0#ga_train_station_utilization_p#
+    #0xB0#l_train_station_utilization_pl#
+    #0xB0#l_train_station_utilization_pl_subject#
+    
+    #0xB0#g_subway_station_count#
+    #0xB0#ga_subway_station_utilization_p#
+    #0xB0#l_subway_station_utilization_pl#
+    #0xB0#l_subway_station_utilization_pl_subject#
+    
+    #0xB0#g_road_tile_count#
+    #0xB0#g_rail_tile_count#
+    #0xB0#g_subway_tile_count#
+    #0xB0#g_highway_tile_count#
+    #0xB0#g_street_tile_count#
+    
+    #0xB0#ga_road_congestion#-- from 0 and up. Values under about 100 (duh!) indicate no congestion.
+    #0xB0#g_road_congestion_tile_count#
+    #0xB0#l_road_congestion_h#
+    #0xB0#l_road_congestion_h_subject#
+    
+    #0xB0#ga_rail_congestion#-- from 0 and up. Values under about 100 (duh!) indicate no congestion.
+    #0xB0#g_rail_congestion_tile_count#
+    #0xB0#l_rail_congestion_h#
+    #0xB0#l_rail_congestion_h_subject#
+    
+    #0xB0#ga_subway_congestion#-- from 0 and up. Values under about 100 (duh!) indicate no congestion.
+    #0xB0#g_subway_congestion_tile_count#
+    #0xB0#l_subway_congestion_h#
+    #0xB0#l_subway_congestion_h_subject#
+    
+    -- Ports -------------------
+    #0xB0#ga_airport_efficiency#
+    #0xB0#ga_seaport_efficiency#
+    
+    #0xB0#g_medium_airport_count#-- all stages
+    #0xB0#g_small_airport_count#
+    #0xB0#g_large_airport_count#
+    #0xB0#g_medium_airport_s1_count#-- stage 1
+    #0xB0#g_small_airport_s1_count#
+    #0xB0#g_large_airport_s1_count#
+    #0xB0#g_medium_airport_s2_count#-- stage 2
+    #0xB0#g_small_airport_s2_count#
+    #0xB0#g_large_airport_s2_count#
+    #0xB0#g_medium_airport_s3_count#-- stage 2
+    #0xB0#g_small_airport_s3_count#
+    #0xB0#g_large_airport_s3_count#
+    
+    #0xB0#g_seaport_count#-- all stages
+    #0xB0#g_seaport_s1_count#-- stage 1
+    #0xB0#g_seaport_s2_count#-- stage 2
+    #0xB0#g_seaport_s3_count#-- stage 3
+    
+    ------------------------------------------------------------------------------------------------
+    -- Finances 
+    
+    -- Budget
+    #0xB0#g_funds#
+    #0xB0#g_income_monthly#
+    #0xB0#g_expense_monthly#
+    #0xB0#g_tax_rate_r_low#
+    #0xB0#g_tax_rate_r_med#
+    #0xB0#g_tax_rate_r_high#
+    #0xB0#g_tax_rate_cs_low#
+    #0xB0#g_tax_rate_cs_med#
+    #0xB0#g_tax_rate_cs_high#
+    #0xB0#g_tax_rate_co_med#
+    #0xB0#g_tax_rate_co_high#
+    #0xB0#g_tax_rate_i_resource#
+    #0xB0#g_tax_rate_i_dirty#
+    #0xB0#g_tax_rate_i_manufacturing#
+    #0xB0#g_tax_rate_i_hightech#
+    #0xB0#g_tax_income#
+    #0xB0#g_borrowed#
+    #0xB0#g_borrowing_limit#
+    #0xB0#g_bond_payments_monthly#
+    #0xB0#g_nd_income#
+    #0xB0#g_nd_expense#
+    
+    ------------------------------------------------------------------------------------------------
+    -- City planning 
+    
+    #0xB0#ga_mayor_rating#-- all mayor ratings range from -100 to +100
+    #0xB0#l_mayor_rating_l#
+    #0xB0#l_mayor_rating_l_subject#
+    #0xB0#l_mayor_rating_h#
+    #0xB0#l_mayor_rating_h_subject#
+    
+    #0xB0#g_city_i_population#Citywide Industrial Population
+    #0xB0#g_city_c_population#Citywide Commercial Population
+    #0xB0#g_city_workforce_population#Citywide Workforce Population
+    #0xB0#g_city_r_population#Citywide Residential Population
+    
+    #0xB0#g_population#
+    #0xB0#g_city_rci_population#
+    #0xB0#g_city_r_population#
+    #0xB0#g_city_c_population#
+    #0xB0#g_city_i_population#
+    #0xB0#g_city_r1_population#
+    #0xB0#g_city_r2_population#
+    #0xB0#g_city_r3_population#
+    #0xB0#g_city_ir_population#
+    #0xB0#g_city_id_population#
+    #0xB0#g_city_im_population#
+    #0xB0#g_city_iht_population#
+    #0xB0#g_city_co2_population#
+    #0xB0#g_city_co3_population#
+    #0xB0#g_city_cs1_population#
+    #0xB0#g_city_cs2_population#
+    #0xB0#g_city_cs3_population#
+    #0xB0#g_region_rci_population#
+    #0xB0#g_region_r_population#
+    #0xB0#g_region_c_population#
+    #0xB0#g_region_i_population#
+    #0xB0#g_city_workforce_population#
+    #0xB0#g_region_workforce_population#
+    #0xB0#g_r1_demand#
+    #0xB0#g_r2_demand#
+    #0xB0#g_r3_demand#
+    #0xB0#g_co2_demand#
+    #0xB0#g_co3_demand#
+    #0xB0#g_r1_active_demand#
+    #0xB0#g_r2_active_demand#
+    #0xB0#g_r3_active_demand#
+    #0xB0#g_co2_active_demand#
+    #0xB0#g_co3_active_demand#
+    #0xB0#g_id_active_demand#
+    #0xB0#g_im_active_demand#
+    #0xB0#g_iht_active_demand#
+    #0xB0#g_workforce_demand#
+    #0xB0#g_workforce_active_demand#
+    #0xB0#g_current_id_cap#
+    #0xB0#g_current_im_cap#
+    #0xB0#g_current_iht_cap#
+    #0xB0#g_current_co2_cap#
+    #0xB0#g_current_co3_cap#
+    #0xB0#g_current_r1_cap#
+    #0xB0#g_current_r2_cap#
+    #0xB0#g_current_r3_cap#
+    #0xB0#g_tax_rate_neutral#
+    #0xB0#g_num_rzone_ld_tiles#
+    #0xB0#g_num_rzone_md_tiles#
+    #0xB0#g_num_rzone_hd_tiles#
+    #0xB0#g_num_czone_ld_tiles#
+    #0xB0#g_num_czone_md_tiles#
+    #0xB0#g_num_czone_hd_tiles#
+    #0xB0#g_num_izone_r_tiles#
+    #0xB0#g_num_izone_l_tiles#
+    #0xB0#g_num_izone_h_tiles#
+    #0xB0#g_num_rail_neighbors#
+    #0xB0#g_num_road_neighbors#
+    #0xB0#g_num_avenue_neighbors#
+    #0xB0#g_num_cities_connected#
+    #0xB0#g_num_cities_adjacent#
+    #0xB0#g_num_cities_connected_indirectly#
+    #0xB0#g_city_has_sea#
+    
+    -- Extrapolated ----------------------
+    #0xB0#g_r1_demand_extrap#
+    #0xB0#g_r2_demand_extrap#
+    #0xB0#g_r3_demand_extrap#
+    #0xB0#g_r_demand_extrap#
+    
+    #0xB0#g_cs1_demand_extrap#
+    #0xB0#g_cs2_demand_extrap#
+    #0xB0#g_cs3_demand_extrap#
+    #0xB0#g_co2_demand_extrap#
+    #0xB0#g_co3_demand_extrap#
+    #0xB0#g_c_demand_extrap#
+    
+    #0xB0#g_ir_demand_extrap#
+    #0xB0#g_id_demand_extrap#
+    #0xB0#g_im_demand_extrap#
+    #0xB0#g_ih_demand_extrap#
+    #0xB0#g_i_demand_extrap#
+    
+    -- Misc -----------------------------
+    #0xB0#g_num_buildings#
+    #0xB0#g_num_parks#
+    #0xB0#g_num_recreation#
+    
+    #0xB0#g_parks_funding_p#
+    #0xB0#g_landmarks_funding_p#
+    --------------------------------------------------------------------------------------------------
+    -- EQ ----------------------------
+    
+    -- Health ----------------------
+    g=citywide
+    
+    #0xB0#g_health_funding_p#-- --Budget sim
+    #0xB0#g_num_hospitals#-- --cISC4ResidentialSimulator::GetHospitalSystemTotals
+    #0xB0#g_num_clinics#-- --cISC4ResidentialSimulator::GetHospitalSystemTotals
+    #0xB0#l_hospital_funding_l#-- Budget sim or cISC4ResidentialSimulator::GetHospitalQueryData
+    #0xB0#l_hospital_funding_l_subject#--
+    #0xB0#l_clinic_funding_l#-- Budget sim or cISC4ResidentialSimulator::GetHospitalQueryData
+    #0xB0#l_clinic_funding_l_subject#--
+    #0xB0#g_health_strike#-- cISC4ResidentialSimulator::HealthIsOnStrike
+    #0xB0#g_health_strike_chance#-- cISC4ResidentialSimulator::ChanceOfHealthStrike
+    #0xB0#g_health_coverage_p#-- cISC4ResidentialSimulator::GetHospitalSystemTotals & cISC4ResidentialSimulator::GetPopulation
+    #0xB0#ga_health_grade#-- cISC4ResidentialSimulator::GetHealthSystemRating
+    #0xB0#l_hospital_grade_l#-- cISC4ResidentialSimulator::GetHospitalQueryData
+    #0xB0#l_hospital_grade_l_subject#--
+    #0xB0#l_clinic_grade_l#-- cISC4ResidentialSimulator::GetHospitalQueryData
+    #0xB0#l_clinic_grade_l_subject#--
+    #0xB0#ga_life_exp#-- cISC4ResidentialSimulator::GetGlobalLE
+    #0xB0#ga_health#-- cISC4ResidentialSimulator::GetGlobalHQ
+    #0xB0#ga_education#-- cISC4ResidentialSimulator::GetGlobalEQ
+    #0xB0#l_tract_life_exp_l#-- LE is directly tied to HQ.  Therefore, the tract with the highest
+    #0xB0#l_tract_life_exp_l_subject#-- LE is directly tied to HQ.  Therefore, the tract with the highest
+    #0xB0#l_tract_life_exp_h#--# HQ will always be the tract with the highest LE.
+    #0xB0#l_tract_life_exp_h_subject#--# HQ will always be the tract with the highest LE.
+    #0xB0#l_tract_hq_l#-- cISC4ResidentialSimulator:: GetHQMinAndMaxTractCoords
+    #0xB0#l_tract_hq_l_subject#-- cISC4ResidentialSimulator:: GetHQMinAndMaxTractCoords
+    #0xB0#l_tract_hq_h#-- cISC4ResidentialSimulator:: GetHQMinAndMaxTractCoords
+    #0xB0#l_tract_hq_h_subject#-- cISC4ResidentialSimulator:: GetHQMinAndMaxTractCoords
+    #0xB0#g_num_treated_patients#-- cISC4ResidentialSimulator::GetHospitalSystemTotals
+    #0xB0#g_health_capacity#-- ?	cISC4ResidentialSimulator::GetHospitalSystemTotals
+    
+    -- Education	--------------------
+    
+    #0xB0#g_education_funding_p#-- Budget sim	
+    #0xB0#l_school_funding_l#-- ?	Budget sim or cISC4ResidentialSimulator::GetSchoolQueryData
+    #0xB0#l_school_funding_l_subject#-- ?	Budget sim or cISC4ResidentialSimulator::GetSchoolQueryData
+    #0xB0#g_school_strike#-- cISC4ResidentialSimulator::SchoolIsOnStrike
+    #0xB0#g_school_strike_chance#-- cISC4ResidentialSimulator::ChanceOfSchoolStrike
+    #0xB0#g_education_coverage_p#-- cISC4ResidentialSimulator::GetSchoolSystemTotals & cISC4ResidentialSimulator::GetPopulation
+    #0xB0#ga_school_grade#-- cISC4ResidentialSimulator::GetSchoolSystemRating or GetSchoolSystemTotals 
+    #0xB0#l_school_grade_l#-- cISC4ResidentialSimulator::GetSchoolQueryData
+    #0xB0#l_school_grade_l_subject#-- cISC4ResidentialSimulator::GetSchoolQueryData
+    #0xB0#g_num_educational_buildings#-- ?	cISC4ResidentialSimulator::GetSchoolSystemTotals
+    #0xB0#g_num_schools#-- cISC4ResidentialSimulator::GetSchoolSystemTotals
+    #0xB0#g_num_elem_schools#-- cISC4ResidentialSimulator::GetSchoolSystemTotals
+    #0xB0#g_num_high_schools#-- cISC4ResidentialSimulator::GetSchoolSystemTotals
+    #0xB0#g_num_colleges#-- cISC4ResidentialSimulator::GetSchoolSystemTotals
+    #0xB0#g_num_libraries#-- cISC4ResidentialSimulator::GetSchoolSystemTotals
+    #0xB0#g_num_museums#-- cISC4ResidentialSimulator::GetSchoolSystemTotals
+    #0xB0#g_num_library_served#-- cISC4ResidentialSimulator::GetSchoolSystemTotals
+    #0xB0#g_num_museum_served#-- cISC4ResidentialSimulator::GetSchoolSystemTotals
+    #0xB0#l_museum_grade_l#-- 	cISC4ResidentialSimulator::GetSchoolSystemTotals
+    #0xB0#l_museum_grade_l_subject#--
+    #0xB0#l_library_grade_l#-- 	cISC4ResidentialSimulator::GetSchoolSystemTotals
+    #0xB0#l_library_grade_l_subject#--
+    #0xB0#ga_museum_grade#-- cISC4ResidentialSimulator::GetSchoolSystemTotals
+    #0xB0#ga_library_grade#-- cISC4ResidentialSimulator::GetSchoolSystemTotals
+    #0xB0#l_tract_eq_l#-- cISC4ResidentialSimulator:: GetEQMinAndMaxTractCoords
+    #0xB0#l_tract_eq_l_subject#-- cISC4ResidentialSimulator:: GetEQMinAndMaxTractCoords
+    #0xB0#l_tract_eq_h#-- cISC4ResidentialSimulator:: GetEQMinAndMaxTractCoords
+    #0xB0#l_tract_eq_h_subject#-- cISC4ResidentialSimulator:: GetEQMinAndMaxTractCoords
+    
+    ---------------------------------------------------------------------
+    -- Time (Sims local time) --------------------
+    
+    #0xB0#g_day#
+    #0xB0#g_month#
+    #0xB0#g_year#-- some constant-based year count. At this point the initial (for a new city) year is 2000.
+    #0xB0#g_year_count#-- zero-based year count. For new cities this is set to zero, increasing by 1 every game year. 
+    #0xB0#g_date#
+    
+
+----------------------------------------------------------------------
+-- EP1
+    
+    #0xB0#ga_bridge_congestion#--	average bridge tiles congestion
+    #0xB0#ga_road_congestion#--	confirm that this measures roads ONLY - no streets included
+    #0xB0#ga_street_congestion#--	the average congestion of streets ONLY in the city
+    #0xB0#ga_avenue_congestion#--	the average congestion of streets ONLY in the city
+    #0xB0#ga_elevated_congestion#--	the average congestion of streets ONLY in the city
+    #0xB0#ga_monorail_congestion#--	the average congestion of streets ONLY in the city
+    #0xB0#ga_freight_trip_length#--	the average trip length of all freight trips in the city
+    
+    #0xB0#ga_elevated_station_utilization_p#--	the average utilzation of elevated rapid transit stations in the city (see existing subway station utilization)
+    #0xB0#g_elevated_station_count#--	count the number of elevated rapid transit station in the city
+    #0xB0#l_elevated_station_utilization_pl#
+    #0xB0#l_elevated_station_utilization_pl_subject#
+    
+    #0xB0#ga_bus_station_utilization_p#--	the average utilzation of elevated rapid transit stations in the city (see existing subway station utilization)
+    #0xB0#g_bus_station_count#--	count the number of elevated rapid transit station in the city
+    #0xB0#l_bus_station_utilization_pl#
+    #0xB0#l_bus_station_utilization_pl_subject#
+    
+    #0xB0#ga_monorail_station_utilization_p#--	the average utilzation of elevated rapid transit stations in the city (see existing subway station utilization)
+    #0xB0#g_monorail_station_count#--	count the number of elevated rapid transit station in the city
+    #0xB0#l_monorail_station_utilization_pl#
+    #0xB0#l_monorail_station_utilization_pl_subject#
+    
+    #0xB0#g_train_freight_depot_count#--	count the number of rail freight depots plopped in the city
+    #0xB0#g_seaport_count#--	count the number of seaports plopped in the city
+    #0xB0#g_car_ferry_count#--	count the number of car ferry terminals in the city'
+    #0xB0#g_passenger_ferry_count#--	count the number of passenger ferry terminals in the city
+    
+    #0xB0#l_road_congestion_h#--	confirm that this looks for congestion on roads ONLY - no streets
+    #0xB0#l_street_congestion_h#--	the congestion level of the most congested street in the city
+    #0xB0#l_avenue_congestion_h#--	the congestion level of the most congested avenue in the city
+    
+    #0xB0#l_road_congestion_h_subject#--	confirm that this looks for congestion on roads ONLY - no streets
+    #0xB0#l_street_congestion_h_subject#--	the location of the most congested street tile in the city
+    #0xB0#l_avenue_congestion_h_subject#--	the location of the most congested avenue in the city
+    
+    #0xB0#l_bridge_congestion_h#--	the congestion level of the most congested bridge tile in the city
+    #0xB0#l_road_connection_congestion_h#--	the congestion level of the the most congested road neighbor connection in the city
+    #0xB0#l_avenue_connection_congestion_h#--	the congestion level of the most congested avenue neighbor connection in the city
+    
+    #0xB0#l_bridge_congestion_h_subject#--	the location of the most congested bridge tile in the city
+    #0xB0#l_road_connection_congestion_h_subject#--	the location of the most congested road neighbor connection in the city
+    #0xB0#l_avenue_connection_congestion_h_subject#--	the location of the most congested avenue neighbor connection in the city
+    
+    #0xB0#g_dirtroad_tile_count#--	count then number of tiles with dirt road occupants in the city
+    #0xB0#g_avenue_tile_count#--	count the number of tiles with avenue occupants in the city
+    #0xB0#g_street_tile_count#--	count the number of tiles with street occupants in the city
+    #0xB0#g_city_tile_size#--	the size of the city in tiles: i.e. 4096, 16384, or 65536
+    #0xB0#g_water_tile_count#--	the number of tiles in a city that are occupied by water
+    #0xB0#g_groundhighway_tile_count#--	count the number of tiles with ground-level highway occupants in the city
+    #0xB0#g_elevated_rail_tile_count#--	count the number of tiles with elevated rapid transit occupants in the city
+    #0xB0#g_monorail_tile_count#--	count the number of tiles with monorail transit occupants in the city
+    #0xB0#g_bridge_tile_count#--	total bridge tile count
+    
+    #0xB0#g_num_rapidtransit_transitions#--	count the number of subway-to-elevated rapid transit track transitions in the city
+    #0xB0#g_num_tollbooths#--	count then number of tollbooths plopped in the city
+    #0xB0#g_seaport_volume#--	count the number of freght trips that reach all seaports in the city
+    
+    #0xB0#g_car_ferry_trip_completed#--	a car ferry terminal completes a test trip
+    #0xB0#g_passnger_ferry_trip_completed#--	a passnger ferry terminal completes a test trip
+    #0xB0#g_return_trip_failed_count#--	the number of commute return trips that could not find their destination
+    #0xB0#g_car_ferry_trip_failed#--	a car ferry terminal cannot complete a test trip to another car ferry terminal nor find a car ferry neighbor connection
+    #0xB0#g_passnger_ferry_trip_failed#--	a passnger ferry terminal cannot complete a test trip to another car ferry terminal nor find a car ferry neighbor connection
+    
+    #0xB0#l_seaport_water_edge_no_access#--	a seaport cannot complete a test trip to a water edge of the city
+    #0xB0#l_seaport_water_edge_no_access_subject#--	location of the seaport that cannot complete test trip
+    
+    #0xB0#g_car_zot_count#--	count the number of car zots (can't complete trip) appearing in the city
+    
+    #0xB0#l_ferry_no_road_access#--	a car ferry terminal has a car zot
+    #0xB0#l_shuttle_no_road_access#--	a passenger ferryterminal has a car zot
+    #0xB0#g_seaport_no_road_access#--	a seaport has a car zot
+    #0xB0#g_airport_no_road_access#--	an airport has a car zot
+    
+    #0xB0#l_ferry_no_road_access_subject#--	location of the car ferry terminal with a car zot
+    #0xB0#l_shuttle_no_road_access_subject#--	location of the passnger ferry terminal with a car zot
+    #0xB0#g_seaport_no_road_access_subject#--	location of the seaport with a car zot
+    #0xB0#g_airport_no_road_access_subject#--	location of airport with a car zot
+    
+    #0xB0#g_rail_neighbor_connection_count#--	count the number of neighbor city rail connections in the city
+    
+
+##################################################################################################################################
+##################################################################################################################################
+##################################################################################################################################
+--#Game trends
+
+    #0xC0#G_RESIDENTIAL_POPULATION#hex2dec('2a4e2003')
+    #0xC0#G_COMMERCIAL_CAPACITY#hex2dec('0a4e2056')
+    #0xC0#G_INDUSTRIAL_CAPACITY#hex2dec('4a4e206b')
+    
+    #0xC0#G_FIRE_PROTECTION_COVERAGE_P#hex2dec('2A11D203')
+    #0xC0#GA_FIRE_PROTECTION#hex2dec('2A11D204')
+    #0xC0#GA_FLAMMABILITY#hex2dec('2A11CB48')
+    
+    #0xC0#G_POLICE_PROTECTION_COVERAGE_P#hex2dec('4A11D354')
+    #0xC0#GA_POLICE_PROTECTION#hex2dec('4A11D355')
+    #0xC0#G_NUM_CRIMES#hex2dec('0a5cc155')
+    #0xC0#G_NUM_ARRESTS#hex2dec('0a5cc156')
+    #0xC0#GA_CRIME#hex2dec('aa662693')
+    #0xC0#FIRE_DISASTER#hex2dec('49d15b74')
+    #0xC0#RIOT_DISASTER#hex2dec('aa8c87c7')
+    
+    #0xC0#G_WATER_PRODUCED#hex2dec('0A14EBB4')
+    #0xC0#G_WATER_IMPORTED#hex2dec('0A14EBB5')
+    #0xC0#G_WATER_EXPORTED#hex2dec('CA14EBC6')
+    #0xC0#G_WATER_CONSUMED#hex2dec('CA14EBD0')
+    #0xC0#G_WATER_PIPES_COUNT#hex2dec('CA14EBFE')
+    #0xC0#G_WATER_PIPES_COUNT_DISTRESSED#hex2dec('CA14EC19')
+    #0xC0#G_WATERED_BUILDING_COUNT#hex2dec('ca78a955')
+    #0xC0#G_UNWATERED_BUILDING_COUNT#hex2dec('8a78ab06')
+    
+    #0xC0#G_TOTAL_AIR_POLLUTION#hex2dec('0A1100E8')
+    #0xC0#G_TOTAL_WATER_POLLUTION#hex2dec('EA110130')
+    #0xC0#G_TOTAL_GARBAGE_POLLUTION#hex2dec('EA110134')
+    #0xC0#G_TOTAL_RADIATION_POLLUTION#hex2dec('EA110137')
+    
+    #0xC0#G_GARBAGE_PRODUCED#hex2dec('EA110158')
+    #0xC0#G_GARBAGE_IMPORTED#hex2dec('EA11017B')
+    #0xC0#G_GARBAGE_EXPORTED#hex2dec('EA11017E')
+    #0xC0#G_GARBAGE_RECYCLED#hex2dec('EA11016F')
+    #0xC0#G_GARBAGE_INCINERATED#hex2dec('EA110197')
+    #0xC0#G_GARBAGE_TO_ENERGY#hex2dec('EA1101A1')
+    #0xC0#G_GARBAGE_TO_LANDFILL#hex2dec('EA1101AA')
+    
+    #0xC0#G_POWER_PRODUCED#hex2dec('AA11F7CE')
+    #0xC0#G_POWER_IMPORTED#hex2dec('AA11F837')
+    #0xC0#G_POWER_EXPORTED#hex2dec('AA11F83A')
+    #0xC0#G_POWER_CONSUMED#hex2dec('AA11F7D2')
+    #0xC0#G_POWER_DEMANDED#hex2dec('AA11F7D5')
+    #0xC0#G_POWER_UNUSED#hex2dec('AA11F7D8')
+    #0xC0#G_POWER_BUILDING_AVERAGE_AGE#hex2dec('AA11F7DA')
+    #0xC0#G_POWER_COST#hex2dec('AA11F7DC')
+    #0xC0#G_POWER_BLACKOUT_P#hex2dec('AA11FB59')
+    #0xC0#G_POWER_CONSUMED_COAL#hex2dec('AA120D5E')
+    #0xC0#G_POWER_CONSUMED_FUSION#hex2dec('AA120D61')
+    #0xC0#G_POWER_CONSUMED_GAS#hex2dec('AA120D63')
+    #0xC0#G_POWER_CONSUMED_MICROWAVE#hex2dec('AA120D65')
+    #0xC0#G_POWER_CONSUMED_NUCLEAR#hex2dec('AA120D66')
+    #0xC0#G_POWER_CONSUMED_OIL#hex2dec('AA120D68')
+    #0xC0#G_POWER_CONSUMED_SOLAR#hex2dec('AA120D6A')
+    #0xC0#G_POWER_CONSUMED_WASTE#hex2dec('AA120D6B')
+    #0xC0#G_POWER_CONSUMED_WIND#hex2dec('AA120D6D')
+    
+    #0xC0#GA_EQ#hex2dec('AA1A2864')
+    #0xC0#GA_HQ#hex2dec('AA1A2866')
+    #0xC0#G_POPULATION_HEALTH_COVERAGE#hex2dec('AA1A2C9F')
+    #0xC0#G_POPULATION_SCHOOL_COVERAGE#hex2dec('AA1A2CA6')
+    #0xC0#G_POPULATION#hex2dec('AA1A2CCA')
+    #0xC0#G_POPULATION_DEMOGRAPHIC_BASE#hex2dec('CA545CAB')
+    #0xC0#G_EQ_DEMOGRAPHIC_BASE#hex2dec('CA545CCA')
+    
+    #0xC0#GA_EFFICIENCY_SEAPORTS#hex2dec('EA3E904A')
+    
+    #0xC0#G_R_POPULATION#hex2dec('2A4E2003')
+    #0xC0#G_RL_POPULATION#hex2dec('4A5E9485')
+    #0xC0#G_RM_POPULATION#hex2dec('EA5E948A')
+    #0xC0#G_RH_POPULATION#hex2dec('2A5E948E')
+    #0xC0#G_C_POPULATION#hex2dec('0A4E2056')
+    #0xC0#G_CO_POPULATION##0xC0#G_C_POPULATION
+    #0xC0#G_COSL_POPULATION#hex2dec('8A5E950E')
+    #0xC0#G_COSM_POPULATION#hex2dec('0A5E9515')
+    #0xC0#G_COSH_POPULATION#hex2dec('8A5E954A')
+    #0xC0#G_COOM_POPULATION#hex2dec('8A5E9552')
+    #0xC0#G_COOH_POPULATION#hex2dec('EA5E9557')
+    #0xC0#G_I_POPULATION#hex2dec('4A4E206B')
+    #0xC0#G_IR_POPULATION#hex2dec('2A5E95A1')
+    #0xC0#G_ID_POPULATION#hex2dec('6A5E95A7')
+    #0xC0#G_IM_POPULATION#hex2dec('0A5E95AC')
+    #0xC0#G_IHT_POPULATION#hex2dec('AA5E95B1')
+    
+    #0xC0#G_R_EXTRAP_OUT#hex2dec('aa772f1d')
+    #0xC0#G_C_EXTRAP_OUT#hex2dec('6a774f64')
+    #0xC0#G_I_EXTRAP_OUT#hex2dec('ca774f69')
+    
+    #0xC0#G_FUNDS#hex2dec('4a5ba3d0')
+    #0xC0#G_INCOME#hex2dec('6a51178b')
+    #0xC0#G_EXPENSES#hex2dec('ca5ba3fb')
+    
+    --REWARD TRIGGERS
+    #0xD0#MAYOR_HOUSE_POP# 500
+    #0xD0#MAYOR_HOUSE_MR# 20
+    #0xD0#BIGLIBRARY_POP # 34000
+    #0xD0#BIGLIBRARY_MR# 37
+    #0xD0#BIGLIBRARY_NUM_LIBRARIES# 5
+    #0xD0#BIGLIBRARY_LIBRARY_GRADE# 85
+    #0xD0#RADIO_POP# 18000
+    #0xD0#RADIO_MR# 30
+    #0xD0#TOURISTTRAP_REGION_POP# 40000
+    #0xD0#TOURISTTRAP_NUM_CITIES_CONNECTED# 4
+    #0xD0#TOURISTTRIP_NUM_CITIES_REGION# 6
+    #0xD0#ARTMUSEUM_POP_RH_AND_RM# 12000
+    #0xD0#ARTMUSEUM_MR# 45
+    #0xD0#ARTMUSEUM_NUM_MUSEUMS# 4
+    #0xD0#ARTMUSEUM_MUSEUM_GRADE# 85
+    #0xD0#COURTHOUSE_POP# 40000
+    #0xD0#COURTHOUSE_MR# 33
+    #0xD0#UNIV_POP_RH_AND_RM# 15000
+    #0xD0#UNIV_MR# 42
+    #0xD0#UNIV_SCHOOL_GRADE# 95
+    #0xD0#OPERA_POP_RM_RH# 48000
+    #0xD0#OPERA_MR# 52
+    #0xD0#CITYHALL1_POP# 12500
+    #0xD0#CITYHALL_MR# 20
+    #0xD0#BOFB_POP# 39000
+    #0xD0#BOFB_MR# 30
+    --#0xD0#BOFB_H_AND_E_FUNDING_P# 103
+    #0xD0#MINORSTAD_POP# 22500
+    #0xD0#MINORSTAD_MR# 20
+    #0xD0#MINORSTAD_NUM_REC_PARK# 16
+    #0xD0#MAJORSTAD_POP# 85000
+    #0xD0#MAJORSTAD_MR# 30
+    #0xD0#FARMERSMKT_POP# 3000
+    #0xD0#FARMERSMKT_MR# 34
+    #0xD0#FARMERSMKT_IR_POP# 600
+    #0xD0#MEDRESCENTER_POP# 56000
+    #0xD0#MEDRESCENTER_MR# 45
+    #0xD0#MEDRESCENTER_NUM_HOSP# 3
+    #0xD0#COUNTRYCLUB_RH_POP# 2000
+    #0xD0#COUNTRYCLUB_MR# 55
+    #0xD0#TVSTUDIO_POP# 65000
+    #0xD0#TVSTUDIO_MR# 50
+    #0xD0#ADVRESCENTER_IHT_POP# 2000
+    #0xD0#ADVRESCENTER_MR# 54
+    #0xD0#STOCKXCHNG_CO_POP# 25000
+    #0xD0#STOCKXCHNG_MR# 45
+    #0xD0#CONVCENTER_C_POP# 25000
+    #0xD0#CONVCENTER_MR# 40
+    #0xD0#MOVIESTUDIO_POP# 110000
+    #0xD0#MOVIESTUDIO_MR# 52
+    #0xD0#ZOO_POP# 80000
+    #0xD0#ZOO_MR# 68
+    #0xD0#ZOO_NUM_PARKS# 25
+    #0xD0#STATEFAIR_IR_POP# 1200
+    #0xD0#STATEFAIR_POP# 3500
+    #0xD0#STATEFAIR_MR# 48
+    #0xD0#RESORT_RM_RH_REGION_POP# 50000
+    #0xD0#RESORT_NUM_CITIES_CONNECTED# 2
+    #0xD0#RESORT_NUM_CITIES_REGION# 4
+    #0xD0#RESORT_AIRPOLLUTION# 20
+    #0xD0#RESORT_MR# 52
+    #0xD0#SOLAR_RH_POP# 3000
+    #0xD0#SOLAR_MR# 55
+    #0xD0#NUKE_CITY_POP# 85000
+    #0xD0#NUKE_ENERGY_DEMAND# 25000
+    #0xD0#FUSION_IHT_POP# 4000
+    #0xD0#FUSION_ENERGY_DEMAND# 30000
+    #0xD0#MAYOR1_POP# 5000
+    #0xD0#MAYOR2_POP# 30000
+    #0xD0#MAYOR3_POP# 60000
+    #0xD0#MAYOR4_POP# 120000
+    --EP1 Reward tuning contstants
+    #0xD0#SPACE_PORT_IHT_JOBS# 25000
+    #0xD0#CRUISE_PORT_C_JOBS# 15000
+    #0xD0#CRUISE_PORT_PARKS# 15
+    #0xD0#CRUISE_CITY_WATER_PCT# 35
+    #0xD0#DELUXE_POLICE_STATION_POP# 41000
+    #0xD0#DELUXE_FIRE_STATION_POP# 31000
+    #0xD0#GRAND_RAIL_STATION_POP# 172000
+    #0xD0#GRAND_RAIL_STATION_UTILIZATION# 4000
+    #0xD0#GRAND_RAIL_STATION_STATIONS# 2
+    #0xD0#LARGE_ELEM_SCHOOL_POP# 4000
+    #0xD0#LARGE_ELEM_SCHOOL_SCHOOLS# 12
+    #0xD0#LARGE_HIGH_SCHOOL_POP# 6000
+    #0xD0#LARGE_ELEM_SCHOOL_SCHOOLS# 8
+    #0xD0#LARGE_WATER_PUMP_CITY_CAPACITY# 40000
+    #0xD0#LARGE_WATER_PUMP_POP# 10000
+    #0xD0#MARINA_CITY_WATER_PCT# 20
+    #0xD0#MARINA_POP# 18000
+    #0xD0#MARINA_MR# 53
+    
+    -- the following values represent various cap values for unscaled (from 0-100) variables.
+    #0xD0#MAX_EQ# 200
+    #0xD0#MAX_HQ# 200
+    #0xD0#MAX_FLAMMABILITY# 256
+    #0xD0#MAX_POLICE_COVERAGE# 256
+    #0xD0#MAX_FIRE_COVERAGE# 256
+    #0xD0#MAX_CRIME# 256
+    #0xD0#MAX_AIR_POLLUTION# hex2dec("0x00000400") -- from the Utilities exemplar.
+    #0xD0#MAX_WATER_POLLUTION# hex2dec("0x00000400")  -- from the Utilities exemplar
+    #0xD0#MAX_GARBAGE_POLLUTION# hex2dec("0x00007d00")  -- from the Utilities exemplar
+    -- all effectiveness, percent and chance values are supposed to be in range between 0-100
+    #0xD0#MAX_FREIGHT_TRIP_LENGTH# 256
+    
+    --REWARDS 
+    #0xE0#MajorLeagueStadium# hex2dec('03280000')
+    #0xE0#Country_Club# hex2dec('03270000')
+    #0xE0#OperaHouse# hex2dec('032B0000')
+    #0xE0#FarmerMarket# hex2dec('032C0000')
+    #0xE0#MayorStatue# hex2dec('03210000')
+    #0xE0#CourtHouse# hex2dec('03220000')
+    #0xE0#TouristTrap# hex2dec('032D0000')
+    #0xE0#AdvResearchCenter# hex2dec('032F0000')
+    #0xE0#BureauofBureaucracy# hex2dec('03310000')
+    #0xE0#StockExchange# hex2dec('03320000')
+    #0xE0#HouseofWorship# hex2dec('031E0000')
+    #0xE0#MayorHouse# hex2dec('031F0000')
+    #0xE0#CityHall1# hex2dec('03C00000')
+    #0xE0#CityHall2# hex2dec('03C10000')
+    #0xE0#CityHall3# hex2dec('03C20000')
+    #0xE0#RadioStation# hex2dec('03330000')
+    #0xE0#TV_Station# hex2dec('03340000')
+    #0xE0#StateFair# hex2dec('03360000')
+    #0xE0#Prison# hex2dec('03380000')
+    #0xE0#Zoo# hex2dec('03390000')
+    #0xE0#Casino# hex2dec('033A0000')
+    #0xE0#MajorArtMuseum# hex2dec('033C0000')
+    #0xE0#UnivAdmin# hex2dec('033D0000')
+    #0xE0#MovieStudio# hex2dec('033E0000')
+    #0xE0#CenterForDisease# hex2dec('033F0000')
+    #0xE0#ResortHotel# hex2dec('03810000')
+    #0xE0#ToxicWasteDunp# hex2dec('03410000')
+    #0xE0#MissleTestingRange# hex2dec('03420000')
+    #0xE0#ConventionCenter# hex2dec('03430000')
+    #0xE0#MinorLeagueStadium# hex2dec('03440000')
+    #0xE0#ArmyBase# hex2dec('03460000')
+    #0xE0#Cemetery# hex2dec('03470000')
+    #0xE0#PrivateSchool# hex2dec('03180000')
+    #0xE0#MayorStatue1# hex2dec('03750000')
+    #0xE0#MayorStatue2# hex2dec('03740000')
+    #0xE0#MayorStatue3# hex2dec('03730000')
+    #0xE0#PrivateSchool2# hex2dec('03790000')
+    #0xE0#PrivateSchool3# hex2dec('037A0000')
+    #0xE0#HouseofWorship1# hex2dec('03760000')
+    #0xE0#HouseofWorship2# hex2dec('03770000')
+    #0xE0#HouseofWorship3# hex2dec('03780000')
+    #0xE0#Cemetery1# hex2dec('037B0000')
+    #0xE0#Cemetery2# hex2dec('037C0000')
+    
+    --LANDMARKS
+    #0xE0#GreatPyramid# hex2dec('04CB0000')
+    #0xE0#TajMahal# hex2dec('04CC0000')
+    #0xE0#BigBen# hex2dec('04CD0000')
+    #0xE0#Basils# hex2dec('04CE0000')
+    #0xE0#BostonFaneuilHall# hex2dec('04CF0000')
+    #0xE0#JohnHancockCenter# hex2dec('04D00000')
+    #0xE0#Sphynx# hex2dec('04D10000')
+    #0xE0#Hollywoodsign# hex2dec('04D20000')
+    #0xE0#ChryslerBuilding# hex2dec('04D30000')
+    #0xE0#EmpireStateBuilding# hex2dec('04D40000')
+    #0xE0#Guggenhiem# hex2dec('04D50000')
+    #0xE0#StatueofLiberty# hex2dec('04D60000')
+    #0xE0#IndependenceHall# hex2dec('04D70000')
+    #0xE0#SmithTower# hex2dec('04D80000')
+    #0xE0#GatewayArch# hex2dec('04D90000')
+    #0xE0#Alamo# hex2dec('04DA0000')
+    #0xE0#CNtower# hex2dec('04DB0000')
+    #0xE0#CaliforniaPlaza# hex2dec('04DC0000')
+    #0xE0#JeffersonMemorial# hex2dec('04DD0000')
+    #0xE0#LincolnMemorial# hex2dec('04DE0000')
+    #0xE0#USCapitol# hex2dec('04DF0000')
+    #0xE0#WashingtonMonument# hex2dec('04E00000')
+    #0xE0#WhiteHouse# hex2dec('04E10000')
+    #0xE0#PalaceofFineArts# hex2dec('10020000')
+    #0xE0#BankofAmericaTower# hex2dec('10030000')
+    #0xE0#Fernsehturm# hex2dec('04C60000')
+    #0xE0#RotesRathaus# hex2dec('04C70000')
+    #0xE0#PalacioReal# hex2dec('04C80000')
+    #0xE0#HagiaSofia# hex2dec('04C90000')
+    #0xE0#TokyoTower# hex2dec('04CA0000')
+    
+    #0xE0#ARC_TRIOMPHE# hex2dec('04C10000')
+    #0xE0#WORLD_CUP_FOOTBALL_STADIUM# hex2dec('04C20000')
+    #0xE0#SEOUL_CITYHALL_SQUARE# hex2dec('04C30000')
+    #0xE0# BANK_OF_CHINA_TOWER# hex2dec('04C40000')
+    #0xE0# AMALIENBORG# hex2dec('04BF0000')
+    
+    -- EP1 buildings
+    #0xE0#DeluxePoliceStation# hex2dec('03860000')
+    #0xE0#SpacePort# hex2dec('03840000')
+    #0xE0#CruiseShipPier# hex2dec('03BC0000')
+    #0xE0#AerialFireFightingStrip# hex2dec('038E0000')
+    #0xE0#GrandRailRoadStation# hex2dec('03980000')
+    #0xE0#LargeElementarySchool# hex2dec('03850000')
+    #0xE0#LargeHighSchool# hex2dec('03890000')
+    #0xE0#LargeWaterPump# hex2dec('03870000')
+    #0xE0#Marina# hex2dec('03970000')
+    #0xE0#Area51# hex2dec('03960000')
+    #0xE0#Lighthouse# hex2dec('03950000')
+    
+------------------------------------------------------------------------------------------
+
+###############################################################
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#### -- Functions
+### need special treatment in dsp since they are FUNCTIONS.
+## GET
+#-- Misc game tools -------------------------
+    game.trend_slope = function (trend_type, period_in_months) return 0 end --returns a trand value between from (-100, +100) for the period of time (see game_trends for trend types)
+    game.trend_value = function (trend_type, num_months_ago) return 0 end --returns a value the trend variable had 'num_months_ago'
+    game.trend_count = function (trend_type, period_in_months) return 0 end --returns a sample count for the period of time
+    game.trend_delta = function (trend_type, period_in_months)  --returns a growith percentage
+    
+    #-- Ordinances --------------
+    game.ordinance_is_on = function (ord_guid) return 0 end -- returns true if the ordinace is in force
+    game.ordinance_set_off= function (ord_guid) end -- repeals the ordinance 
+    game.ordinance_set_on= function (ord_guid) end -- enacts the ordinance 
+    game.ordinance_is_available  = function (ord_guid) return 0 end -- checks if the ordinance is available
+    game.ordinance_name= function (ord_guid) return '***' end -- returns ord text name 
+    game.ordinance_description  = function (ord_guid) return '***' end -- returns ord text description
+    game.ordinance_enact_fee  = function (ord_guid) return 0 end -- the fee charged to enact an ordinance 
+    game.ordinance_repeal_fee  = function (ord_guid) return 0 end -- the fee charged to repeal an ordinance 
+    game.ordinance_monthly_cost  = function (ord_guid) return 0 end -- the monthly income/expense associated with the ordinance 
+    
+    
+### oops......!!??
+/********************
+
+    game.tool_plop_network = function (network_type) end -- E.g. game.tool_plop_network(network_tool_types.SUBWAY). See more types in network_tool_types.
+    game.tool_plop_zone = function (zone_type) end -- E.g. game.tool_plop_zone(zone_tool_types.SUBWAY). See more types in zone_tool_types.
+    game.tool_plop_building = function (building_type) end -- E.g. game.tool_plop_building(building_tool_types.LOCALPRECINCT4CAR). See more types in building_tool_types.
+    game.tool_plop_flora = function (flora_type) end -- E.g. game.tool_plop_flora(flora_tool_types.OAK_TREE). See more types in flora_tool_types.
+    game.tool_button = function (button_type) end -- E.g. game.tool_button(button_tool_types.DEMOLISH). See more types in button_tool_types.
+    
+    game.window_budget = function (budget_window_type) end -- E.g. game.window_budget(budget_window_types.TAXES). See more types in budget_window_types.
+    game.window_map = function (map_window_type) end -- E.g. game.window_map(map_window_types.***). See more types in map_window_types.
+    game.window_data_map = function (map_window_type)  game.window_map(map_window_type) end -- same as above
+    game.window_graph = function (graph_window_type) end -- E.g. game.window_graph(graph_window_types.***). See more types in graph_window_types.
+    game.window_query = function (subject)  end  -- this will open q7uery window for the subject (school, hospical, fire house, etc.)
+**********************/
+
+############################################################################################################
+############################################################################################################
+### Part 3: Lost and found - all those custom addons and plugs.....
+############################################################################################################
+#########################################################################################################
+#########################################################################################################
+#####
+from new_properties.xml 
+#####	
+	CAM and custom game content: BSC, CSX, SFBT, SG.......
+	families trackable by #0xd0000a : number of buildings in class
+	Approx. 500 trackable game objects
+	-> sc4: dsp.automataGetSourceBuildingCount(key) // GET  // 
+	-> Template: #0xd0000a#Value#Name/comment
+	
+#########################################################################################################
+    #0xd0000a#0x1000#Building: Residential
+    #0xd0000a#0x1001#Building: Commercial
+    #0xd0000a#0x1002#Building: Industrial
+    #0xd0000a#0x1003#Building: Transportation
+    #0xd0000a#0x1004#Building: Utility
+    #0xd0000a#0x1005#Building: Civic
+    #0xd0000a#0x1006#Building: Park
+    #0xd0000a#0x1009#Building: ScriptingUse
+    #0xd0000a#0x100a#Building: Fauna_generate
+    #0xd0000a#0x1100#Building: Commercial FleaMarket
+    #0xd0000a#0x1101#Building: Commercial MiddleClassMall
+    #0xd0000a#0x1102#Building: Commercial FashionCentre
+    #0xd0000a#0x1103#Building: Commercial Drivein
+    #0xd0000a#0x1104#Building: Commercial Multiplex
+    #0xd0000a#0x1105#Building: Commercial DinnerTheater
+    #0xd0000a#0x1106#Building: Commercial FleaBagMotel
+    #0xd0000a#0x1107#Building: Commercial FamilyCourt
+    #0xd0000a#0x1108#Building: Commercial LuxurySpa
+    #0xd0000a#0x1109#Building: Commercial GreasePit
+    #0xd0000a#0x110A#Building: Commercial ServiceStation
+    #0xd0000a#0x110B#Building: Commercial CarCarCentre
+    #0xd0000a#0x110C#Building: Commercial UsedCarCheap
+    #0xd0000a#0x110D#Building: Commercial CarDealership
+    #0xd0000a#0x110E#Building: Commercial LuxuryAutoCentr
+    #0xd0000a#0x110F#Building: Commercial TacoStand
+    #0xd0000a#0x1110#Building: Commercial FamilyDiner
+    #0xd0000a#0x1111#Building: Commercial ChezFancy
+    #0xd0000a#0x1112#Building: Commercial Cinema
+    #0xd0000a#0x1113#Building: Commercial MaxisSimTheatre
+    #0xd0000a#0x1114#Building: Commercial FamilyInn
+    #0xd0000a#0x1115#Building: Commercial Ritzy
+    #0xd0000a#0x1116#Building: Commercial Simcys
+    #0xd0000a#0x1117#Building: Commercial Sims4thAve
+    #0xd0000a#0x11010#Building: R$
+    #0xd0000a#0x11020#Building: R$$
+    #0xd0000a#0x11030#Building: R$$$
+    #0xd0000a#0x13320#Building: CO$$
+    #0xd0000a#0x13330#Building: CO$$$
+    #0xd0000a#0x13110#Building: CS$
+    #0xd0000a#0x13120#Building: CS$$
+    #0xd0000a#0x13130#Building: CS$$$
+    #0xd0000a#0x14100#Building: IA
+    #0xd0000a#0x14200#Building: ID
+    #0xd0000a#0x14300#Building: IM
+    #0xd0000a#0x14400#Building: IHT
+    #0xd0000a#0x21000#Building: Commercial Car
+    #0xd0000a#0x21001#Building: Commercial Food
+    #0xd0000a#0x21002#Building: Commercial Shop
+    #0xd0000a#0x21003#Building: Commercial Movie
+    #0xd0000a#0x21004#Building: Commercial Hotel
+    #0xd0000a#0x31000#Building: Large Commercial
+    #0xd0000a#0x1300#Building: Rail
+    #0xd0000a#0x1301#Building: Bus
+    #0xd0000a#0x1302#Building: Subway
+    #0xd0000a#0x1303#Building: El Train
+    #0xd0000a#0x1304#Building: Ferry
+    #0xd0000a#0x1305#Building: PassengerRail
+    #0xd0000a#0x1306#Building: FreightRail
+    #0xd0000a#0x1307#Building: MonoRail
+    #0xd0000a#0x1308#Building: CarFerry
+    #0xd0000a#0x1309#Building: PassengerFerry
+    #0xd0000a#0x130A#Building: MiscTransit
+    #0xd0000a#0x130B#Building: TollBooth
+    #0xd0000a#0x1400#Building: Power
+    #0xd0000a#0x1401#Building: Water
+    #0xd0000a#0x1402#Building: Landfill
+    #0xd0000a#0x1403#Building: Nuclear
+    #0xd0000a#0x1404#Building: Recycle
+    #0xd0000a#0x1405#Building: Toxic Dump
+    #0xd0000a#0x1406#Building: Landfill Zone
+    #0xd0000a#0x1500#Building: Police
+    #0xd0000a#0x1501#Building: Jail
+    #0xd0000a#0x1502#Building: Fire
+    #0xd0000a#0x1503#Building: School
+    #0xd0000a#0x1504#Building: College
+    #0xd0000a#0x1505#Building: Library
+    #0xd0000a#0x1506#Building: Museum
+    #0xd0000a#0x1507#Building: Health
+    #0xd0000a#0x1508#Building: Airport
+    #0xd0000a#0x1509#Building: Seaport
+    #0xd0000a#0x150A#Building: Landmark
+    #0xd0000a#0x150B#Building: Reward
+    #0xd0000a#0x150C#Building: Landmark Queue
+    #0xd0000a#0x150D#Building: PoliceBig
+    #0xd0000a#0x150E#Building: PoliceSm
+    #0xd0000a#0x150F#Building: SchoolsK6
+    #0xd0000a#0x1510#Building: SchoolsHS
+    #0xd0000a#0x1511#Building: Courthouse
+    #0xd0000a#0x1512#Building: Clinic
+    #0xd0000a#0x1513#Building: Hospital
+    #0xd0000a#0x1514#Building: SchoolsPrivate
+    #0xd0000a#0x1515#Building: Deluxe Police Station
+    #0xd0000a#0x1516#Building: Police Kiosk
+    #0xd0000a#0x1517#Building: Landing Strip
+    #0xd0000a#0x1518#Building: DeluxeFireStation
+    #0xd0000a#0x1519#Building: WaterTransit 
+    #0xd0000a#0x151a#Building: LargeHealth
+    #0xd0000a#0x151b#Building: School Other
+    #0xd0000a#0x151c#Building: Health Other
+    #0xd0000a#0x1700#Building: Cemetary
+    #0xd0000a#0x1701#Building: Pet Cemetary
+    #0xd0000a#0x1702#Building: Zoo
+    #0xd0000a#0x1900#Building: VIP
+    #0xd0000a#0x1901#Building: Tourist
+    #0xd0000a#0x1902#Building: CountryClub
+    #0xd0000a#0x1903#Building: Taxi_Maker
+    #0xd0000a#0x1904#Building: AmbulanceMaker
+    #0xd0000a#0x1905#Building: DMV
+    #0xd0000a#0x1906#Building: Stadium
+    #0xd0000a#0x1907#Building: Worship
+    #0xd0000a#0x1908#Building: NiteClub
+    #0xd0000a#0x1909#Building: Opera
+    #0xd0000a#0x1910#Building: TV Station
+    #0xd0000a#0x1911#Building: TV Magnet
+    #0xd0000a#0x1912#Building: Farmland
+    #0xd0000a#0x1913#Building: Biz Lawyer Attack
+    #0xd0000a#0x1914#Building: Army Base
+    #0xd0000a#0x1915#Building: Army Missile Range
+    #0xd0000a#0x1916#Building: Army Tank
+    #0xd0000a#0x1917#Building: Ape Escape
+    #0xd0000a#0x1918#Building: Maxis
+    #0xd0000a#0x1919#Building: Dog Magnet
+    #0xd0000a#0x1920#Building: YIMBY
+    #0xd0000a#0x1921#Building: Convention Crowd
+    #0xd0000a#0x1922#Building: Kid Crowd
+    #0xd0000a#0x1923#Building: Sim Crowd Day r10Small
+    #0xd0000a#0x1924#Building: Sim Crowd Day r70Lg
+    #0xd0000a#0x1925#Building: State Fair
+    #0xd0000a#0x1926#Building: Bus Stop
+    #0xd0000a#0x1927#Building: Sim Crowd Stand
+    #0xd0000a#0x1928#Building: NIMBY
+    #0xd0000a#0x1929#Building: Crowd Biz
+    #0xd0000a#0x1930#Building: Crowd White Coat
+    #0xd0000a#0x1931#Building: Army_Ped
+    #0xd0000a#0x1932#Building: Army_JumpinJacks
+    #0xd0000a#0x1933#Building: ZombieBldg
+    #0xd0000a#0x1934#Building: MowerBldg
+    #0xd0000a#0x1935#Building: Landmark Ogle
+    #0xd0000a#0x1936#Building: Burning Dude Maker
+    #0xd0000a#0x1937#Building: Crowd Stand Return
+    #0xd0000a#0x1938#Building: Mayor house
+    #0xd0000a#0x1939#Building: Icecream spawner
+    #0xd0000a#0x1940#Building: Casino
+    #0xd0000a#0x1941#Building: Marina
+    #0xd0000a#0x1A00#Building: Strikable Fire
+    #0xd0000a#0x1A01#Building: Strikable Police
+    #0xd0000a#0x1A02#Building: Strikable Health
+    #0xd0000a#0x1A03#Building: Strikable Education
+    #0xd0000a#0x1A04#Building: Strikable Transit
+    #0xd0000a#0x2000#Style: Chicago
+    #0xd0000a#0x2001#Style: New York
+    #0xd0000a#0x2002#Style: Houston
+    #0xd0000a#0x2003#Style: Euro
+    #0xd0000a#0x3000#Industry: Anchor
+    #0xd0000a#0x3001#Industry: Mechanical
+    #0xd0000a#0x3002#Industry: Out
+    #0xd0000a#0x4000#Automaton
+    #0xd0000a#0x4001#Automata: Pedestrian
+    #0xd0000a#0x4002#Automata: Vehicle
+    #0xd0000a#0x4003#Automata: Aircraft
+    #0xd0000a#0x4004#Automata: Watercraft
+    #0xd0000a#0x4005#Automata: Train
+    #0xd0000a#0x4100#Automata: Child
+    #0xd0000a#0x4101#Automata: Construction Sim
+    #0xd0000a#0x4102#Automata: Crime Sim
+    #0xd0000a#0x4103#Automata: Firefighter
+    #0xd0000a#0x4104#Automata: Sim Fire Crew
+    #0xd0000a#0x4105#Automata: Police (multiple) Walking Strike Sim
+    #0xd0000a#0x4106#Automata: Protestor
+    #0xd0000a#0x4107#Automata: Sim
+    #0xd0000a#0x4108#Automata: Police (multiple) Standing Strike Sim
+    #0xd0000a#0x4109#Automata: Firemen (multiple) Walking Strike Sim
+    #0xd0000a#0x410a#Automata: Fireman (multiple) Standing Strike Sim
+    #0xd0000a#0x410b#Automata: Rioting Standing Sim
+    #0xd0000a#0x410c#Automata: Rioting Walking Sim
+    #0xd0000a#0x410d#Automata: Police
+    #0xd0000a#0x410e#Automata: Fauna
+    #0xd0000a#0x410f#Automata: Riot Police
+    #0xd0000a#0x4110#Automata: Riot Police (multiple) Walking Sim
+    #0xd0000a#0x4111#Automata: Riot Police (multiple) Standing Sim
+    #0xd0000a#0x4112#Automata: Prisoner - (jail inhabitants)
+    #0xd0000a#0x4113#Automata: Education (multiple) Standing Strike Sim
+    #0xd0000a#0x4114#Automata: Education (multiple) Walking Strike Sim
+    #0xd0000a#0x4115#Automata: Medical (multiple) Standing Strike Sim
+    #0xd0000a#0x4116#Automata: Medical (multiple) Walking Strike Sim
+    #0xd0000a#0x4117#Automata: Transit (multiple) Standing Strike Sim
+    #0xd0000a#0x4118#Automata: Transit (multiple) Walking Strike Sim
+    #0xd0000a#0x4119#Automata: Arsonist
+    #0xd0000a#0x4120#Automata: BusinessPerson
+    #0xd0000a#0x4121#Automata: Chimp
+    #0xd0000a#0x4122#Automata: Dog
+    #0xd0000a#0x4123#Automata: Llama
+    #0xd0000a#0x4124#Automata: Education Worker
+    #0xd0000a#0x4125#Automata: Medical Worker
+    #0xd0000a#0x4126#Automata: Transit Worker
+    #0xd0000a#0x4127#Automata: Chimp Experiment
+    #0xd0000a#0x4128#Automata: Fauna_wild
+    #0xd0000a#0x4129#Automata: Army Joggers
+    #0xd0000a#0x4130#Automata: Chain Gang
+    #0xd0000a#0x4131#Automata: Army JumpJacks
+    #0xd0000a#0x4132#Automata: Army RunInPlace
+    #0xd0000a#0x4133#Automata: Fauna Deer
+    #0xd0000a#0x4134#Automata: Fauna Bear
+    #0xd0000a#0x4135#Automata: Fauna Elephant
+    #0xd0000a#0x4136#Automata: Fauna Giraffe
+    #0xd0000a#0x4137#Automata: Fauna Horse
+    #0xd0000a#0x4138#Automata: Fauna Lion
+    #0xd0000a#0x4139#Automata: Fauna Moose
+    #0xd0000a#0x4140#Automata: Fauna PolarBear
+    #0xd0000a#0x4141#Automata: Fauna Rhino
+    #0xd0000a#0x4142#Automata: Jail Prisoner Cop Magnet
+    #0xd0000a#0x4143#Automata: Army Sims
+    #0xd0000a#0x4144#Automata: TV Reporter_Ped
+    #0xd0000a#0x4145#Automata: Zombie
+    #0xd0000a#0x4146#Automata: Mower Dude
+    #0xd0000a#0x4147#Automata: Flaming Stuntman
+    #0xd0000a#0x4148#Automata: Carjacking Sims
+    #0xd0000a#0x4149#Automata: MySim Walk Male
+    #0xd0000a#0x414a#Automata: MySim Walk Female
+    #0xd0000a#0x4200#Automata: Bus
+    #0xd0000a#0x4201#Automata: Commute Train
+    #0xd0000a#0x4202#Automata: Fire Engine
+    #0xd0000a#0x4203#Automata: Freight Train
+    #0xd0000a#0x4204#Automata: Freight Truck
+    #0xd0000a#0x4205#Automata: Garbage Truck
+    #0xd0000a#0x4206#Automata: Moving Van
+    #0xd0000a#0x4207#Automata: Police Vehicle
+    #0xd0000a#0x4208#Automata: Subway
+    #0xd0000a#0x4209#Automata: MySim Vehicle
+    #0xd0000a#0x420A#Automata: Soccer_Moms
+    #0xd0000a#0x420B#Automata: Civilian_Cars
+    #0xd0000a#0x420C#Automata: Taxi_Cars
+    #0xd0000a#0x420D#Automata: Rich_Cars
+    #0xd0000a#0x420E#Automata: Cheap_Cars
+    #0xd0000a#0x420F#Automata: School_Bus
+    #0xd0000a#0x4210#Automata: Limo
+    #0xd0000a#0x4211#Automata: Ambulance
+    #0xd0000a#0x4212#Automata: Toxic Carrier
+    #0xd0000a#0x4213#Automata: Hearse
+    #0xd0000a#0x4214#Automata: Recycle Truck
+    #0xd0000a#0x4215#Automata: Commute Train Engine
+    #0xd0000a#0x4216#Automata: Freight Train Engine
+    #0xd0000a#0x4217#Automata: Subway Engine
+    #0xd0000a#0x4218#Automata: TV Reporter
+    #0xd0000a#0x4219#Automata: Farm Vehicles
+    #0xd0000a#0x421A#Automata: Freight Train Caboose
+    #0xd0000a#0x421B#Automata: U_Haul Leader
+    #0xd0000a#0x421C#Automata: U_Haul Trailer
+    #0xd0000a#0x421D#Automata: Subway Tunneler
+    #0xd0000a#0x421E#Automata: Army Truck
+    #0xd0000a#0x421F#Automata: Missile Truck
+    #0xd0000a#0x4220#Automata: Army Tank - maybe
+    #0xd0000a#0x4221#Automata: ArmyTruckLeader
+    #0xd0000a#0x4222#Automata: Semi Truck
+    #0xd0000a#0x4223#Automata: Semi Trailer
+    #0xd0000a#0x4224#Automata: CC Dumptruck
+    #0xd0000a#0x4225#Automata: CC Grader
+    #0xd0000a#0x4226#Automata: Getaway Van
+    #0xd0000a#0x4227#Automata: Crime Vehicle
+    #0xd0000a#0x4228#Automata: Patrol Car
+    #0xd0000a#0x4229#Automata: Carjacked Vehicle
+    #0xd0000a#0x422a#Automata: Ice Cream Truck
+    #0xd0000a#0x422b#Automata: Mayor Limo
+    #0xd0000a#0x422c#Automata: El Train Engine
+    #0xd0000a#0x422d#Automata: El Train
+    #0xd0000a#0x422e#Automata: Monorail Engine
+    #0xd0000a#0x422f#Automata: Monorail
+    #0xd0000a#0x4230#Automata: Steam Train
+    #0xd0000a#0x4231#Automata: Police Van
+    #0xd0000a#0x4232#Automata: Cement Mixer
+    #0xd0000a#0x4233#Automata: Standard Freight Engine
+    #0xd0000a#0x4234#Automata: Expensive sports car
+    #0xd0000a#0x4235#Automata: Train Track Checker
+    #0xd0000a#0x4236#Automata: Train Car Spill
+    #0xd0000a#0x4300#Automata: Helicopter
+    #0xd0000a#0x4301#Automata: Police Helicopter
+    #0xd0000a#0x4302#Automata: Planes
+    #0xd0000a#0x4303#Automata: Fire planes
+    #0xd0000a#0x4304#Automata: News Helicopter
+    #0xd0000a#0x4305#Automata: Medical Helicopter
+    #0xd0000a#0x4306#Automata: Crop Duster
+    #0xd0000a#0x4307#Automata: Attack Helicopter
+    #0xd0000a#0x4308#Automata: UFO
+    #0xd0000a#0x4311#Automata: Stunt Plane
+    #0xd0000a#0x4312#Automata: Fighter Plane
+    #0xd0000a#0x4313#Automata: Sky Diver
+    #0xd0000a#0x4400#Automata: Ferry Boat
+    #0xd0000a#0x4401#Automata: Speed Boat
+    #0xd0000a#0x4402#Automata: Passenger only Ferry Boat
+    #0xd0000a#0x4406#Automata: Yacht
+    #0xd0000a#0x4407#Automata: SailCat
+    #0xd0000a#0x4408#Automata: motorboat
+    #0xd0000a#0x4409#Automata: offshore
+    #0xd0000a#0x440a#Automata: cargo
+    #0xd0000a#0x440c#Automata: fishingboat
+    #0xd0000a#0x440d#Automata: luxsailboat
+    #0xd0000a#0x440e#Automata: sailboat
+    #0xd0000a#0x4410#Automata: tug
+    #0xd0000a#0x4411#Automata: cruiseship
+    #0xd0000a#0x4412#Automata: WatercraftSmall
+    #0xd0000a#0x4413#Automata: WatercraftMedium
+    #0xd0000a#0x4414#Automata: WatercraftLarge
+    #0xd0000a#0x4415#Automata: MetalWhale
+    #0xd0000a#0x5001#Prop: Zot
+    #0xd0000a#0x5002#Prop: Stoplight
+    #0xd0000a#0x5003#Prop: RR Crossing
+    #0xd0000a#0x5004#Prop: Flora
+    #0xd0000a#0x5005#Prop: Fire Occupant
+    #0xd0000a#0x5006#Prop: Toxic Occupant
+    #0xd0000a#0x5007#Prop: Construction Occupant
+    #0xd0000a#0x00047000#Automata: BMW Cars
+    #0xd0000a#0x00047001#Automata: Ford Cars
+    #0xd0000a#0x00047002#Automata: Honda Cars
+    #0xd0000a#0x00047003#Automata: Mercedes Cars
+    #0xd0000a#0x00047004#Automata: VW Cars
+    #0xd0000a#0x0004D000#MikeSeith: BMW Dealer
+    #0xd0000a#0x0004D001#MikeSeith: Ford Dealer
+    #0xd0000a#0x0004D002#MikeSeith: Honda Dealer
+    #0xd0000a#0x0004D003#MikeSeith: Mercedes Dealer
+    #0xd0000a#0x0004D004#MikeSeith: VW Dealer
+    #0xd0000a#0xB5C00000#CSX: CSX Lots
+    #0xd0000a#0xB5C00001#CSX: Rewards
+    #0xd0000a#0xB5C00002#CSX: Fields
+    #0xd0000a#0xB5C00003#CSX: Farms
+    #0xd0000a#0xB5C00004#CSX: Residential
+    #0xd0000a#0xB5C00005#CSX: Commercial
+    #0xd0000a#0xB5C00006#CSX: Industrial
+    #0xd0000a#0xB5C00007#CSX: Civics
+    #0xd0000a#0xB5C0000A#BTE: Gascooker Lots
+    #0xd0000a#0xB5C0000B#BTE: Market Chain
+    #0xd0000a#0xB5C0000C#BTE: Liquor Chain
+    #0xd0000a#0xB5C0000D#BTE: Technology Chain
+    #0xd0000a#0xB5C0000E#CSX: Parks
+    #0xd0000a#0xB5C0000F#BTE: Industrial Chain
+    #0xd0000a#0xB5C00010#CSX: Commercial Farms
+    #0xd0000a#0xB5C00011#BTE: Tourism Chain
+    #0xd0000a#0xB5C00012#BTE: Petronas Trigger Mansion
+    #0xd0000a#0xB5C00013#BTE: Pipelines
+    #0xd0000a#0xB5C00014#BTE: Woodlands Menu Trigger
+    #0xd0000a#0xB5C00015#BTE: Nature Conservation
+    #0xd0000a#0xB5C00016#CSX: Mega 8x8 Industrials
+    #0xd0000a#0xB5C00017#CSX: Mining
+    #0xd0000a#0xB5C00018#CSX: Timber Industry
+    #0xd0000a#0xB5C00019#BTE: JRJ Lots
+    #0xd0000a#0xB5C00020#BTE: JRJ Canals
+    #0xd0000a#0xB5C00100#SG: Sainsbury Local
+    #0xd0000a#0xB5C00101#SG: Sainsbury Local
+    #0xd0000a#0xB5C00102#SG: Sainsbury Local
+    #0xd0000a#0xB5C00110#SG: Fuddruckers
+    #0xd0000a#0xB5C00111#SG: Ruby Tuesday
+    #0xd0000a#0xB5C00112#SG: Capt Jacks Seafood
+    #0xd0000a#0xB5C00150#SG: Homes
+    #0xd0000a#0xB5C00151#SG: Shops
+    #0xd0000a#0xB5C00152#SG: Offices
+    #0xd0000a#0xB5C00153#SG: Grocery
+    #0xd0000a#0xB5C00154#SG: Hotels
+    #0xd0000a#0xB5C00156#SG: Restaurants
+    #0xd0000a#0xB5C00157#SG: Entertainment
+    #0xd0000a#0xB5C00158#SG: Utility
+    #0xd0000a#0xB5C00159#SG: Un-Defined
+    #0xd0000a#0xB5C0015A#SG: Industrial
+    #0xd0000a#0xB5C00160#SG: Magical Fruit Bean Farms
+    #0xd0000a#0xB5C00161#SG: Sally's Corn Fields
+    #0xd0000a#0xB5C00162#SG: Shanonn's Flower Fields
+    #0xd0000a#0xB5C00163#SG: Goober's Peanuts
+    #0xd0000a#0xB5C00164#SG: Holland Tulips
+    #0xd0000a#0xB5C00165#SG: Amber Waves Heat
+    #0xd0000a#0xB5C00166#SG: Rice Farms
+    #0xd0000a#0xB5C00167#SG: Melony's Melon Farms
+    #0xd0000a#0xB5C00168#SG: Sugar Cane Plantation
+    #0xd0000a#0xB5C00169#SG: Pirate Rum Destillery
+    #0xd0000a#0xB5C0016A#SG: Cattle Farm
+    #0xd0000a#0xB5C00175#SG: Dennys Restaurant
+    #0xd0000a#0xB5C00176#SG: Kellys Escort
+    #0xd0000a#0xB5C0017A#SG: Props, Swimming Pools
+    #0xd0000a#0xB5C0017B#SG: Props, Play Gyms
+    #0xd0000a#0xB5C00180#SG: NIMBY
+    #0xd0000a#0xB5C00185#SG: Waterway
+    #0xd0000a#0xB5C00186#SG: Mass Transit
+    #0xd0000a#0xB5C001FF#SG: SG General
+    #0xd0000a#0xB5C00200#DW: DW Lots
+    #0xd0000a#0xB5C00201#DW: IHT Pharm Set
+    #0xd0000a#0xB5C00202#DW: El Rail Set
+    #0xd0000a#0xB5C00203#DW: Art Deco Hotels
+    #0xd0000a#0xB5C00204#DW: Small Aussie Shops
+    #0xd0000a#0xB5C00205#DW: Servos
+    #0xd0000a#0xB5C00206#DW: Raised Parks
+    #0xd0000a#0xB5C00207#DW: Undefined
+    #0xd0000a#0xB5C003A0#JBS: General
+    #0xd0000a#0xB5C003A1#JBS: Small Town USA
+    #0xd0000a#0xB5C003A2#JBS: SHUR Project
+    #0xd0000a#0xB5C00400#BLS: Indoor Nursery Farms
+    #0xd0000a#0xB5C00401#BLS: Outdoor Nursery Farms
+    #0xd0000a#0xB5C00402#BLS: Lime Tree Fields
+    #0xd0000a#0xB5C00403#BLS: Lemon Tree Fields
+    #0xd0000a#0xB5C004A0#BLS: Flower Farms
+    #0xd0000a#0xB5C004A5#BLS: Residential
+    #0xd0000a#0xB5C004A6#BLS: The Dead Parrot
+    #0xd0000a#0xB5C004B0#BLS: Comm General
+    #0xd0000a#0xB5C004B1#BLS: Comm Alcohol
+    #0xd0000a#0xB5C004B2#BLS: Comm Herbs
+    #0xd0000a#0xB5C004B3#BLS: Comm Flowers
+    #0xd0000a#0xB5C004B4#BLS: Comm Food
+    #0xd0000a#0xB5C004C0#BLS: Industrial
+    #0xd0000a#0xB5C004D0#BLS: Equine
+    #0xd0000a#0xB5C004E0#BLS: Casa de Soleil
+    #0xd0000a#0xB5C004E1#BLS: Agave Farms
+    #0xd0000a#0xB5C004E2#BLS: Tapas Bars
+    #0xd0000a#0xB5C004E3#BLS: Don Quixote Park
+    #0xd0000a#0xB5C004E4#BLS: Pavillion Park
+    #0xd0000a#0xB5C004E5#BLS: Minerva Park
+    #0xd0000a#0xB5C004E6#BLS: Farden Independencia
+    #0xd0000a#0xB5C004E7#BLS: Seaplane Base
+    #0xd0000a#0xB5C004E8#BLS: Bull Ranch
+    #0xd0000a#0xB5C004FA#BLS: Farms
+    #0xd0000a#0xB5C004FB#BLS: Banana Farms
+    #0xd0000a#0xB5C009A1#CP: Early 19th Century American Buildings
+    #0xd0000a#0xB5C009A2#CP: Late 19th Century American Buildings
+    #0xd0000a#0xB5C009A3#CP: Early 20th Century American Buildings
+    #0xd0000a#0xB5C009A4#CP: Late 20th Century American Buildings
+    #0xd0000a#0xB5C009A5#CP: 21st Century Buildings
+    #0xd0000a#0xB5C009B0#CP: Timber Related Business/industry
+    #0xd0000a#0xB5C009B1#CP: Outdoor Recreation Related Business/industry
+    #0xd0000a#0xB5C009B2#CP: Grain Related Business/industry
+    #0xd0000a#0xB5C009B3#CP: Maritime Related Business/industry
+    #0xd0000a#0xB5C009B4#CP: Gambling Related Business/industry
+    #0xd0000a#0xB5C009B5#CP: Construction Related Business/industry
+    #0xd0000a#0xB5C009C1#CP: Log Buildings
+    #0xd0000a#0xB5C009CD#CP: Cycledogg Lots
+    #0xd0000a#0xB5C009D0#CP: RCI Lots containing Large Conifer Trees
+    #0xd0000a#0xB5C009D1#CP: RCI Lots containing Seasonal Trees
+    #0xd0000a#0xB5C009E1#CP: Medieval Buildings
+    #0xd0000a#0xB5C009E2#CP: Pre-19th Century French RCI
+    #0xd0000a#0xB5C009E3#CP: Pre-19th Century UK RCI
+    #0xd0000a#0xB5C00A01#BTE: Comm. Pubs or Bars
+    #0xd0000a#0xB5C00A02#BTE: Comm. Financial
+    #0xd0000a#0xB5C00A03#BTE: Comm. Tourism
+    #0xd0000a#0xB5C00A04#BTE: Comm. Offices
+    #0xd0000a#0xB5C00A05#BTE: Comm. W2W
+    #0xd0000a#0xB5C00A06#BTE: Comm. Restaurants
+    #0xd0000a#0xB5C00A07#BTE: Comm. Grocers
+    #0xd0000a#0xB5C00A08#BTE: Comm. Retailers
+    #0xd0000a#0xB5C00A09#BTE: Comm. Petroleum
+    #0xd0000a#0xB5C00A0A#BTE: Comm. Entertainment
+    #0xd0000a#0xB5C00A0B#BTE: Comm. Flea Markets
+    #0xd0000a#0xB5C00A0C#BTE: Comm. Auto Dealers
+    #0xd0000a#0xB5C00A0D#BTE: Comm. Postal Services
+    #0xd0000a#0xB5C00A0E#BTE: Comm. Diagonals
+    #0xd0000a#0xB5C00AA8#CAM: CS$ CAMeLot
+    #0xd0000a#0xB5C00AA9#CAM: CS$ Stage 9
+    #0xd0000a#0xB5C00AAA#CAM: CS$ Stage 10
+    #0xd0000a#0xB5C00AAB#CAM: CS$ Stage 11
+    #0xd0000a#0xB5C00AAC#CAM: CS$ Stage 12
+    #0xd0000a#0xB5C00AAD#CAM: CS$ Stage 13
+    #0xd0000a#0xB5C00AAE#CAM: CS$ Stage 14
+    #0xd0000a#0xB5C00AAF#CAM: CS$ Stage 15
+    #0xd0000a#0xB5C00AB0#CAM: CS$$ CAMeLot
+    #0xd0000a#0xB5C00AB1#CAM: CS$$ Stage 9
+    #0xd0000a#0xB5C00AB2#CAM: CS$$ Stage 10
+    #0xd0000a#0xB5C00AB3#CAM: CS$$ Stage 11
+    #0xd0000a#0xB5C00AB4#CAM: CS$$ Stage 12
+    #0xd0000a#0xB5C00AB5#CAM: CS$$ Stage 13
+    #0xd0000a#0xB5C00AB6#CAM: CS$$ Stage 14
+    #0xd0000a#0xB5C00AB7#CAM: CS$$ Stage 15
+    #0xd0000a#0xB5C00AB8#CAM: CS$$$ CAMeLot
+    #0xd0000a#0xB5C00AB9#CAM: CS$$$ Stage 9
+    #0xd0000a#0xB5C00ABA#CAM: CS$$$ Stage 10
+    #0xd0000a#0xB5C00ABB#CAM: CS$$$ Stage 11
+    #0xd0000a#0xB5C00ABC#CAM: CS$$$ Stage 12
+    #0xd0000a#0xB5C00ABD#CAM: CS$$$ Stage 13
+    #0xd0000a#0xB5C00ABE#CAM: CS$$$ Stage 14
+    #0xd0000a#0xB5C00ABF#CAM: CS$$$ Stage 15
+    #0xd0000a#0xB5C00AC0#CAM: CO$$ CAMeLot
+    #0xd0000a#0xB5C00AC1#CAM: CO$$ Stage 9
+    #0xd0000a#0xB5C00AC2#CAM: CO$$ Stage 10
+    #0xd0000a#0xB5C00AC3#CAM: CO$$ Stage 11
+    #0xd0000a#0xB5C00AC4#CAM: CO$$ Stage 12
+    #0xd0000a#0xB5C00AC5#CAM: CO$$ Stage 13
+    #0xd0000a#0xB5C00AC6#CAM: CO$$ Stage 14
+    #0xd0000a#0xB5C00AC7#CAM: CO$$ Stage 15
+    #0xd0000a#0xB5C00AC8#CAM: CO$$$ CAMeLot
+    #0xd0000a#0xB5C00AC9#CAM: CO$$$ Stage 9
+    #0xd0000a#0xB5C00ACA#CAM: CO$$$ Stage 10
+    #0xd0000a#0xB5C00ACB#CAM: CO$$$ Stage 11
+    #0xd0000a#0xB5C00ACC#CAM: CO$$$ Stage 12
+    #0xd0000a#0xB5C00ACD#CAM: CO$$$ Stage 13
+    #0xd0000a#0xB5C00ACE#CAM: CO$$$ Stage 14
+    #0xd0000a#0xB5C00ACF#CAM: CO$$$ Stage 15
+    #0xd0000a#0xB5C00B01#BTE: Res. Complexes
+    #0xd0000a#0xB5C00B02#BTE: Res. High Wealth
+    #0xd0000a#0xB5C00B03#BTE: Res. Mid Wealth
+    #0xd0000a#0xB5C00B04#BTE: Res. Low Wealth
+    #0xd0000a#0xB5C00B05#BTE: Res. W2W
+    #0xd0000a#0xB5C00BA8#CAM: R$ CAMeLot
+    #0xd0000a#0xB5C00BA9#CAM: R$ Stage 9
+    #0xd0000a#0xB5C00BAA#CAM: R$ Stage 10
+    #0xd0000a#0xB5C00BAB#CAM: R$ Stage 11
+    #0xd0000a#0xB5C00BAC#CAM: R$ Stage 12
+    #0xd0000a#0xB5C00BAD#CAM: R$ Stage 13
+    #0xd0000a#0xB5C00BAE#CAM: R$ Stage 14
+    #0xd0000a#0xB5C00BAF#CAM: R$ Stage 15
+    #0xd0000a#0xB5C00BB0#CAM: R$$ CAMeLot
+    #0xd0000a#0xB5C00BB1#CAM: R$$ Stage 9
+    #0xd0000a#0xB5C00BB2#CAM: R$$ Stage 10
+    #0xd0000a#0xB5C00BB3#CAM: R$$ Stage 11
+    #0xd0000a#0xB5C00BB4#CAM: R$$ Stage 12
+    #0xd0000a#0xB5C00BB5#CAM: R$$ Stage 13
+    #0xd0000a#0xB5C00BB6#CAM: R$$ Stage 14
+    #0xd0000a#0xB5C00BB7#CAM: R$$ Stage 15
+    #0xd0000a#0xB5C00BB8#CAM: R$$$ CAMeLot
+    #0xd0000a#0xB5C00BB9#CAM: R$$$ Stage 9
+    #0xd0000a#0xB5C00BBA#CAM: R$$$ Stage 10
+    #0xd0000a#0xB5C00BBB#CAM: R$$$ Stage 11
+    #0xd0000a#0xB5C00BBC#CAM: R$$$ Stage 12
+    #0xd0000a#0xB5C00BBD#CAM: R$$$ Stage 13
+    #0xd0000a#0xB5C00BBE#CAM: R$$$ Stage 14
+    #0xd0000a#0xB5C00BBF#CAM: R$$$ Stage 15
+    
+    #0xd0000a#0xB5C00C01#BTE: Field - Grain
+    #0xd0000a#0xB5C00C02#BTE: Field - Fruit
+    #0xd0000a#0xB5C00C03#BTE: Field - ??
+    #0xd0000a#0xB5C00C04#BTE: Field - ??
+    #0xd0000a#0xB5C00C05#BTE: Field - ??
+    #0xd0000a#0xB5C00C06#BTE: Field - ??
+    #0xd0000a#0xB5C00C07#BTE: Field - Timber
+    #0xd0000a#0xB5C00C08#BTE: Field - GM
+    #0xd0000a#0xB5C00C09#BTE: Field - Organic
+    #0xd0000a#0xB5C00C0A#BTE: Field - Herbs
+    #0xd0000a#0xB5C00C0B#BTE: Field - Textiles
+    #0xd0000a#0xB5C00C0C#BTE: Field - Nuts
+    #0xd0000a#0xB5C00C0D#BTE: Field - Tobacco
+    #0xd0000a#0xB5C00C0E#BTE: Field - Alcohol
+    #0xd0000a#0xB5C00C0F#BTE: Field - Beer
+    #0xd0000a#0xB5C00C10#BTE: Field - Vegetables
+    #0xd0000a#0xB5C00C11#BTE: Field - Nursery
+    #0xd0000a#0xB5C00C12#BTE: Field - Vineyards
+    #0xd0000a#0xB5C00C13#BTE: Field - Nature
+    #0xd0000a#0xB5C00C14#BTE: Field - Medicinal
+    #0xd0000a#0xB5C00C15#BTE: Field - General Use
+    #0xd0000a#0xB5C00C21#BTE: Farm Stage 1
+    #0xd0000a#0xB5C00C22#BTE: Farm Stage 2
+    #0xd0000a#0xB5C00C23#BTE: Farm Stage 3
+    #0xd0000a#0xB5C00C24#CAM: Farm Stage 4
+    #0xd0000a#0xB5C00C25#CAM: Farm Stage 5
+    #0xd0000a#0xB5C00C26#CAM: Farm Stage 6
+    #0xd0000a#0xB5C00C27#CAM: Farm Stage 7
+    #0xd0000a#0xB5C00C30#BTE: Farm - Meat
+    #0xd0000a#0xB5C00C31#BTE: Farm - Dairy
+    #0xd0000a#0xB5C00C32#BTE: Farm - Fish
+    #0xd0000a#0xB5C00C33#BTE: Farm - Poutry
+    #0xd0000a#0xB5C00C34#BTE: Farm - Timber
+    #0xd0000a#0xB5C00C35#BTE: Farm - Vegetables
+    #0xd0000a#0xB5C00C36#BTE: Farm - Fruit
+    #0xd0000a#0xB5C00C37#BTE: Farm - Wine
+    #0xd0000a#0xB5C00C38#BTE: Farm - Nursery
+    #0xd0000a#0xB5C00C39#BTE: Farm - Herbs
+    #0xd0000a#0xB5C00C3A#BTE: Farm - Grain
+    #0xd0000a#0xB5C00C3B#BTE: Farm - Tobacco
+    #0xd0000a#0xB5C00C3C#BTE: Farm - Beer
+    #0xd0000a#0xB5C00C3D#BTE: Farm - Alcohol
+    #0xd0000a#0xB5C00C3E#BTE: Farm - Medicinal
+    #0xd0000a#0xB5C00C3F#BTE: Farm - Textiles
+    #0xd0000a#0xB5C00C40#BTE: Farm - Equine
+    #0xd0000a#0xB5C00C45#BTE: Farm - General Use
+    #0xd0000a#0xB5C00C50#BTE: Farm - Gen. Modified
+    #0xd0000a#0xB5C00C51#BTE: Farm - Organic
+    #0xd0000a#0xB5C00C52#BTE: Farm - Homestead
+    #0xd0000a#0xB5C00C53#BTE: Farm - Commercial
+    #0xd0000a#0xB5C00CC0#BTE: IR CAP Relief 100
+    #0xd0000a#0xB5C00CC1#BTE: IR CAP Relief 200
+    #0xd0000a#0xB5C00CC2#BTE: IR CAP Relief 400
+    #0xd0000a#0xB5C00CC3#BTE: IR CAP Relief 800
+    #0xd0000a#0xB5C00CC4#BTE: IR CAP Relief 1600
+    #0xd0000a#0xB5C00CC5#BTE: IR CAP Relief 3200
+    #0xd0000a#0xB5C00CC6#BTE: IR CAP Relief 6400
+    #0xd0000a#0xB5C00CC7#BTE: IR CAP Relief 12800
+    #0xd0000a#0xB5C00CC8#BTE: IR CAP Relief 25600
+    #0xd0000a#0xB5C00CC9#BTE: IR CAP Relief 51200
+    #0xd0000a#0xB5C00CCA#BTE: IR CAP Relief 102400
+    #0xd0000a#0xB5C00CCB#BTE: IR CAP Relief 204800
+    #0xd0000a#0xB5C00CCC#BTE: IR CAP Relief 409600
+    #0xd0000a#0xB5C00CCD#BTE: IR CAP Relief 819200
+    #0xd0000a#0xB5C00CCE#BTE: IR CAP Relief 1638400
+    #0xd0000a#0xB5C00CCF#BTE: IR CAP Relief 3276800
+    #0xd0000a#0xB5C00D01#BTE: NDEX Building
+    #0xd0000a#0xB5C00D02#BTE: SOMY Building
+    #0xd0000a#0xB5C00DD0#BTE: Civic
+    #0xd0000a#0xB5C00DD1#BTE: Parks
+    #0xd0000a#0xB5C00DD2#BTE: BSC Landmark
+    #0xd0000a#0xB5C00DD3#BTE: NDEX Landmark
+    #0xd0000a#0xB5C00DD4#BTE: Adult Store
+    #0xd0000a#0xB5C00DD5#BTE: NIMBY Building
+    #0xd0000a#0xB5C00DD6#BTE: Waterfront
+    #0xd0000a#0xB5C00DD7#BTE: PEG Productions
+    #0xd0000a#0xB5C00DD8#BTE: Inland Waterways
+    #0xd0000a#0xB5C00DD9#BTE: Military
+    #0xd0000a#0xB5C00DDA#BTE: Security
+    #0xd0000a#0xB5C00DDB#BTE: Health
+    #0xd0000a#0xB5C00DDC#BTE: Education
+    #0xd0000a#0xB5C00DDD#BTE: Culture
+    #0xd0000a#0xB5C00DDE#BTE: W2W General
+    #0xd0000a#0xB5C00DDF#BTE: Religious
+    #0xd0000a#0xB5C00DF0#BTE: Transit - Ped
+    #0xd0000a#0xB5C00DF1#BTE: Transit - Car
+    #0xd0000a#0xB5C00DF2#BTE: Transit - Bus
+    #0xd0000a#0xB5C00DF3#BTE: Transit - Passener Rail
+    #0xd0000a#0xB5C00DF4#BTE: Transit - Freight Rail
+    #0xd0000a#0xB5C00DF5#BTE: Transit - Subway
+    #0xd0000a#0xB5C00DF6#BTE: Transit - El Rail
+    #0xd0000a#0xB5C00DF7#BTE: Transit - Monorail
+    #0xd0000a#0xB5C00DF8#BTE: Utility - Water
+    #0xd0000a#0xB5C00E01#BTE: Ind - Dirty
+    #0xd0000a#0xB5C00E02#BTE: Ind - Manufacturing
+    #0xd0000a#0xB5C00E03#BTE: Ind - Hi Tech
+    #0xd0000a#0xB5C00E10#BTE: Ind - Warehouses
+    #0xd0000a#0xB5C00E11#BTE: Ind - Baked Goods
+    #0xd0000a#0xB5C00E12#BTE: Ind - Clothing
+    #0xd0000a#0xB5C00E13#BTE: Ind - Automotiv
+    #0xd0000a#0xB5C00E14#BTE: Ind - Recreational
+    #0xd0000a#0xB5C00E15#BTE: Ind - Construction
+    #0xd0000a#0xB5C00E16#BTE: Ind - Mining
+    #0xd0000a#0xB5C00E17#BTE: Ind - Military
+    #0xd0000a#0xB5C00E18#BTE: Ind - Electrical
+    #0xd0000a#0xB5C00E19#BTE: Ind - Engineering
+    #0xd0000a#0xB5C00EA8#CAM: ID CAMeLot
+    #0xd0000a#0xB5C00EA9#CAM: ID Stage 4
+    #0xd0000a#0xB5C00EAA#CAM: ID Stage 5
+    #0xd0000a#0xB5C00EAB#CAM: ID Stage 6
+    #0xd0000a#0xB5C00EAC#CAM: ID Stage 7
+    #0xd0000a#0xB5C00EAD#CAM: ID Stage 8
+    #0xd0000a#0xB5C00EAE#CAM: ID Stage 9
+    #0xd0000a#0xB5C00EAF#CAM: ID Stage 10
+    #0xd0000a#0xB5C00EB0#CAM: IM CAMeLot
+    #0xd0000a#0xB5C00EB1#CAM: IM Stage 4
+    #0xd0000a#0xB5C00EB2#CAM: IM Stage 5
+    #0xd0000a#0xB5C00EB3#CAM: IM Stage 6
+    #0xd0000a#0xB5C00EB4#CAM: IM Stage 7
+    #0xd0000a#0xB5C00EB5#CAM: IM Stage 8
+    #0xd0000a#0xB5C00EB6#CAM: IM Stage 9
+    #0xd0000a#0xB5C00EB7#CAM: IM Stage 10
+    #0xd0000a#0xB5C00EB8#CAM: IHT CAMeLot
+    #0xd0000a#0xB5C00EB9#CAM: IHT Stage 4
+    #0xd0000a#0xB5C00EBA#CAM: IHT Stage 5
+    #0xd0000a#0xB5C00EBB#CAM: IHT Stage 6
+    #0xd0000a#0xB5C00EBC#CAM: IHT Stage 7
+    #0xd0000a#0xB5C00EBD#CAM: IHT Stage 8
+    #0xd0000a#0xB5C00EBE#CAM: IHT Stage 9
+    #0xd0000a#0xB5C00EBF#CAM: IHT Stage 10
+    #0xd0000a#0xB5C00EF0#BTE: Utility - Water
+    #0xd0000a#0xB5C00EF1#BTE: Utility - Power
+    #0xd0000a#0xB5C00EF2#BTE: Utility - Garbage
+    #0xd0000a#0xB5C00F00#SFBT: Large Lot Series
+    #0xd0000a#0xB5C00F01#SFBT: R-$ Large Lot Low Density
+    #0xd0000a#0xB5C00F02#SFBT: R-$ Large Lot Medium Density
+    #0xd0000a#0xB5C00F03#SFBT: R-$ Large Lot High Density
+    #0xd0000a#0xB5C00F04#SFBT: R-$$ Large Lot Low Density
+    #0xd0000a#0xB5C00F05#SFBT: R-$$ Large Lot Medium Density
+    #0xd0000a#0xB5C00F06#SFBT: R-$$ Large Lot High Density
+    #0xd0000a#0xB5C00F07#SFBT: R-$$$ Large Lot Low Density
+    #0xd0000a#0xB5C00F08#SFBT: R-$$$ Large Lot Medium Density
+    #0xd0000a#0xB5C00F09#SFBT: R-$$$ Large Lot High Density
+    #0xd0000a#0xB5C00F0A#SFBT: Hamburg W2W
+    #0xd0000a#0xB5C00F5F#BTE: SFBT Building
+    
+
+##########################################################################################################################
+##########################################################################################################################
+###########################################################################################    ###############################
+    Addendum:
+    #-- Advice specific ------------
+    ### removed ###
+    ## to be added - convenience func
+    -- City Situations ------------
+    game.trigger_event = function(eventGUID) end   -- triggers one of the events in game_events, to trigger advisor msg
+    game.unlock_reward_building = function(buildingGUID) end   -- makes a conditional (reward) building available to the player.  Use special_buildings GUIDs in adv_const.lua
+    game.get_reward_building_state = function(buildingGUID) return reward_state.HIDDEN end-- returns reward_state constant for the given building
+    game.difficulty_level = function () return -1 end
+    ------------------------------------------------------------------------------------------
+    -- Game Data Registry ------------
+       sc4game.mysims.get_count = function() end
+    -- NOTE: UNRELIABLE!  Use sc4game.automata.get_source_building_count(building_groups.LANDMARK) instead!
+       sc4game.civic.get_landmark_count = function() return 0 end
+    ------------------------------------------------------------------------------------------
+    ##########################################################################################################################
+#############################################################################################################
+    SNM
+    SNM.LargeSecurity = {}
+    SNM.LargeSecurity.name	= "Large Security"
+    SNM.LargeSecurity.OG 	= "0xB5C00DE8"
+    SNM.LargeSecurity.income 	= 150
+    SNM.LargeSecurity.soldiers 	= 150
+    SNM.CreateNewRecord(SNM.LargeSecurity)
+    SNM.SmallHealth = {}
+    SNM.SmallHealth.name	= "Small Health"
+    SNM.SmallHealth.OG 	= "0xB5C00DE9"
+    SNM.SmallHealth.income 	= 50
+    SNM.SmallHealth.soldiers 	= 50
+    SNM.CreateNewRecord(SNM.SmallHealth)
+    SNM.MediumHealth = {}
+    SNM.MediumHealth.name = "Medium Health"
+    SNM.MediumHealth.OG 	= "0xB5C00DEA"
+    SNM.MediumHealth.income 	= 100
+    SNM.MediumHealth.soldiers 	= 100
+    SNM.CreateNewRecord(SNM.MediumHealth)
+    SNM.SmallTransport = {}
+    SNM.SmallTransport.name	= "Small Transport"
+    SNM.SmallTransport.OG 	= "0xB5C00DEB"
+    SNM.SmallTransport.income 	= 50
+    SNM.SmallTransport.soldiers 	= 50
+    SNM.CreateNewRecord(SNM.SmallTransport)
+    SNM.MediumTransport = {}
+    SNM.MediumTransport.name = "Medium Transport"
+    SNM.MediumTransport.OG 	= "0xB5C00DEC"
+    SNM.MediumTransport.income 	= 100
+    SNM.MediumTransport.soldiers 	= 100
+    SNM.CreateNewRecord(SNM.MediumTransport)
+    SNM.LargeTransport = {}
+    SNM.LargeTransport.name	= "Large Transport"
+    SNM.LargeTransport.OG 	= "0xB5C00DED"
+    SNM.LargeTransport.income 	= 150
+    SNM.LargeTransport.soldiers 	= 150
+    SNM.CreateNewRecord(SNM.LargeTransport)
+    SNM.Utilities = {}
+    SNM.Utilities.name	= "Utilities"
+    SNM.Utilities.OG 	= "0xB5C00DEE"
+    SNM.Utilities.income 	= 50
+    SNM.Utilities.soldiers 	= 50
+    
+
+#############
+##########################################################################################################################
+--#File Revison 04/2013# 
+--#\-package:0C160701#
+
+
+----------
+  
+[configMarkdown](configMarkdown.html) | [devnotes](devnotes.html) | [DiasporaCredits](DiasporaCredits.html) | [dsp_params](dsp_params.html)	| [dsp_readme](dsp_readme.html) 
+
+-----------
+06.04.2013 20:00:38 

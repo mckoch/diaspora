@@ -1,0 +1,10 @@
+## minmal dsp configuration file - App\Diaspora\patch.dat ##
+#0xff0000#Apps\Diaspora\data.dat# current logfile in sc4/Apps/ 
+#0xfffff0#3# Watchdog's interval in minutes
+#0x000002#reserved#Total Budget. -sc4game.budget.total_funds()
+some test values:
+#0xd0000a#0x1305#-- passenger rail
+#0xd0000a#0x1306#-- freight rail 
+#0xd0000a#0x150A#-- landmark
+#0xd0000a#0x150F#-- schools_k6
+#0xd0000a#0x1307#-- Monorail station

@@ -1,0 +1,460 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>dsp_readme</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: d5e7ce436666e7d4a2eeb12e7f8261dacceb3565 */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+.markdown-body img {
+  max-width: 100%,
+  
+}
+
+img {
+  max-width: 100%,
+  float: left;
+  margin: 5px;
+}
+img.half {
+width: 50%;
+height: 50%;
+}
+</style>
+
+</head>
+<body>
+<hr />
+<p><a href="configMarkdown.html">configMarkdown</a> | <a href="devnotes.html">devnotes</a> | <a href="DiasporaCredits.html">DiasporaCredits</a> | <a href="dsp_params.html">dsp_params</a>	| <a href="dsp_readme.html">dsp_readme</a> </p>
+<hr />
+<h2>About Diaspora dsp: LUA file plugin</h2>
+<p>Diaspora inspects the SimCity4 game for tons of simulator values and periodically logs them to disc. More than this, it allows to alter quite a bunch of game parameters during a running city, without installing additional plugins than the dsp.dat itself (which is less than 3kb). The configuration of the plug may be altered at any time, so the player may immediately see and log to file what is happening. If i.e. a city won't develop CS$$, monitor according values (you decide which), temporary tweak some tuning constant to unlock a certain reward, adjust the caps or add some money (you may pay back later). It helps taking extensive 'diagnostic snapshots' of crashing cities (a nice file to add to the screen shots of CTD@load-cities). </p>
+<hr />
+<p>Diaspora - shorthand dsp - is a small plug which periodically logs accessable in-game values of a running city to file. Configuration and log file may be changed at any time during a running city. For this, dsp provides three options: </p>
+<ol>
+<li>user configurable file logging functions,</li>
+<li>a watchdog (but no food, sorry),</li>
+<li>mapping functions to access sc4 in game data.</li>
+</ol>
+<p>dsp consists of a small plugin (about 2k small), an external configuration file (which may be altered during a running city), plus the main lo gfile for collected data. If up, dsp will periodically log according to the state defined in the current patch (=configuration file). It's basic output will look similar to this:</p>
+<pre><code>--# Apps/Diaspora/data.dat
+#0xfffff0#17#' readable lines in Apps\Diaspora\patch.dat
+#0x000001#1364841891#CONFIG
+#0x1305#0#-- passenger rail
+#0x1306#1#-- freight rail 
+#0x150A#0#-- landmark
+#0x150F#1#-- schools_k6
+#0x13110#8#-- CS1 (CS$)
+#0x13120#0#-- CS2 (CS$$)
+#0x13130#0#-- CS3 (CS$$$)
+#0x1307#0#-- Monorail station
+#0x000002#235954#current budget
+#0xffffff#
+--#
+</code></pre>
+
+<p>This is <em>output</em> from the default configuration which counts Maxis' automata buildings. If only CS is tracked, each log entry will look similar to:</p>
+<pre><code>--# Apps/Diaspora/data.dat
+#0xfffff0#17#' readable lines in Apps\Diaspora\patch.dat
+#0x000001#1364841891#CONFIG
+#0x13110#8#-- CS1 (CS$)
+#0x13120#0#-- CS2 (CS$$)
+#0x13130#0#-- CS3 (CS$$$)
+#0xffffff#
+--# 
+</code></pre>
+
+<p>which shows there are 8 small Commercial Services, but no CS$$$ or CS$. 
+The config file would be similar to this:</p>
+<pre><code>--# Apps/Diaspora/patch.dat
+#0xff0000#Apps\Diaspora\data.dat#logfile in sc4/Apps/  - required, tweakable.
+#0xfffff0#3#Watchdog's interval in minutes  - required, tweakable.
+#0xd0000a#0x13110#-- CS1 (CS$)
+#0xd0000a#0x13120#-- CS2 (CS$$)
+#0xd0000a#0x13130#-- CS3 (CS$$$)
+    dsp ignores lines which don't start with a valid token. 
+    That's quite handy for comments in patch.dat. So guess what the next line does:
+#0x020000#100#add to budget - sc4game.budget.deposit_funds(100)
+--#
+</code></pre>
+
+<p>This data may easily be used or generated by other applications. If you use the &quot;turbo version&quot; (which simply logs once per second), something like a tail -f looks very impressive. About a thousand different tokens to track and/or tweak almost any aspect of the game are included.  </p>
+<h2>How to install and configure:</h2>
+<h3>Step One</h3>
+<ol>
+<li>
+<p>Put dsp_pack.dat into your plugins directory, where all the plugs live.</p>
+</li>
+<li>
+<p>In your /...somepath<em>to</em> Maxis/SimCity/Apps folder create a subdirectory called 'Diaspora' (case sensitive). You may change the path for the log files once dsp is running.)</p>
+</li>
+<li>
+<p>Copy the files config.dat and patch.dat to Apps/Diaspora/.</p>
+</li>
+</ol>
+<h3>Step Two</h3>
+<ol>
+<li>
+<p>Start sc and load some city. </p>
+</li>
+<li>
+<p>Have a look at Apps/Diaspora/data.dat. It is a plain text file which may be read by any editor.</p>
+</li>
+<li>
+<p>An interval of two minutes is preconfigured, so the log file  should start to grow.</p>
+</li>
+</ol>
+<h3>Step Three</h3>
+<p>Open Apps/Diaspora/patch.dat with a text editor. It looks similar to this:</p>
+<pre><code>--#
+#0x000000#1364730031#Apps\Diaspora\patch.dat 
+#0xff0000#Apps\Diaspora\data.dat#logfile in sc4/Apps/ 
+#0xfffff1#silent#Watchdog mode: silent or annoying (niy)
+#0xfffff0#3#Watchdog's interval in minutes (niy)
+#0x000002#reserved#Total Budget. 
+#0xd0000a#0x1305#-- passenger rail
+#0xd0000a#0x1306#-- freight rail 
+#0xd0000a#0x150A#-- landmark
+#0xd0000a#0x150F#-- schools_k6
+#0xd0000a#0x13110#-- CS1 (CS$)
+#0xd0000a#0x13120#-- CS2 (CS$$)
+#0xd0000a#0x13130#-- CS3 (CS$$$)
+#0xd0000a#0x1307#-- Monorail station
+#0xffffff#Reserved for comment lines in this file. 
+--# 
+</code></pre>
+
+<p>Some general rules apply to the configuration file patch.dat:</p>
+<ol>
+<li>
+<p>Each line is read by dsp, only certain codes in the first row are evaluated.  
+</p>
+</li>
+<li>
+<p>Comments may be placed on seperate lines and contain even HTML and JS, but they should not contain valid dsp Hex codes like #0xd0000a#.</p>
+</li>
+<li>
+<p>Valid lines contain a token of the following pattern:</p>
+<pre><code># 0x_dsp_hex_6digit # 0x_SC_hex # comment or legend, new line is new line   
+</code></pre>
+
+</li>
+</ol>
+<p>i.e.</p>
+<pre><code>    #0xd0000a#0x150A#-- landmark
+
+    which means '0xd0000a': get the value from SC's address '0x150A' and use '-- landmark' as label in the current log configuration. 
+</code></pre>
+
+<p>In this doc, a valid line is referenced as a 'token', which consists of three 'fields': a 'command' (or 'trigger'), a 'value' (or 'game address') and a user comment. Some triggers are read only, they are GETers, some are SETers too; some of the setters will need an additional parameter. </p>
+<hr />
+<h4>Some essential dsp triggers:</h4>
+<pre><code>'#0xd0000a' (dsp) denotes all objects accessible via sc4game.automata.get_source_building_count() function.
+'#0xff0000' (dsp) sets the path to current logfile under SC4\Apps\. REQUIRED.
+'#0x000002' (dsp) prints current budget.
+'#0xfffff0' (dsp) log interval in minutes. REQUIRED.
+</code></pre>
+
+<p>More useful details, examples and comments in patch.dat and the ReadMe. The configuration can be changed anytime in game, i.e. to track varying aspects of a loaded city into different log files which Diaspora will gracefully create.</p>
+<p><em>For more information and set of &gt; 800 tokens see the distribution file.</em></p>
+<h4>Limitations:</h4>
+<p><strike>Since this is some kind of proof-of-concept release, dsp is restricted to data of type '#0xd0000a' (Maxis automata). </strike>. Diaspora can never ever 'load another plugin' nor does dsp alter the game or patches any other mod (hope so...). dsp is not suitable to inspect your plugin folder for installed plugins, but it is very suitable to find out if some are missing. It will not inspect saved games or pollute environment. Diaspora is not a cheat, even if it's fun to use dsp for just-a-little-bit-cheating.</p>
+<h4>Roadmap</h4>
+<p>N.N., but plenty of ideas. First of all: implement missing convenience functions. 
+An eye on the 'do' mapper. 
+Create advisors from patch.dat. Switch textures (would be great!!)?? </p>
+<h4>Dependencies</h4>
+<p>None but SimCity4.</p>
+<h4>Compatibility</h4>
+<p>SimCity4, RushHour,CAMpatible. Works with almost any other plugin, if it messes up some address space post here, see the support page or pm the author.</p>
+<h2>Package Content</h2>
+<ul>
+<li>dsp_pack.dat 	: main Diaspora file in %yourfiles%/Plugins.</li>
+<li>dsp<em>pack</em>t.dat : 'turbo' which logs initial token set as fast as possible. Use to benchmark your machine ;) </li>
+<li>patch.dat 	: the configuration file - edit this to change config tokens.</li>
+<li>data.dat 		: initial log file</li>
+<li>documentation.txt	: consult before editing patch.dat. Approx. 1000 tokens to cover most aspects of the game.</li>
+<li>readme.txt 	: this file.</li>
+<li>license.txt</li>
+<li>viewer.zip 	: contains a simple JavaScript data viewer + instructions.</li>
+</ul>
+<h3>Current Version</h3>
+<p>dsp 0.2ß @ config 04/2013 </p>
+<h3>Known Bugs</h3>
+<p>For some reason, dsp does not write log data immediately after creating a new log file. Diaspora does not check for errors in your configuration - but config may freeze the game/CTD it. If dsp encounters an error, it will silently terminate the current operation and have a new try after the defined interval, so in most cases: no fresh output in config file -&gt; check the config first. To restart dsp, reload the current city.</p>
+<h3>License</h3>
+<p>This software is BSD licensed. This means you may use and alter this code for your needs (which includes distributing, patching and forking in the community as long as the copy is licensed in the same way, not necessarily CC, any open license like GPL, MIT, Apache will do. Fixes, additions and extensions highly appreciated. Use by EA and their affiliates is strictly prohibited until they let the community freely run and patch SC5.</p>
+<h3>Disclaimer</h3>
+<p>Diaspora will never be held responsible for the size, quantity or quality of your log files, games running at 5 frames/min, the sense or quality of it's code, it's coder, it's user, the weather or birds flying by. You agree it's author will never be made responsible for massive loss of time or any nervous disease while playing. The author is not associated with EA, and for sure will never be: open source for open minds. So this program is &quot;is as is&quot;-ware, no guaranties, no warranties, no promises, no claims, no lame, no shame. Best of all: it's absolutely free. No animals were harmed during development, but a c16761c Llamas went to nil.</p>
+<p>2013/04/02 mck</p>
+<p>PS: To mention this, I wrote this software because I'm seriously pissed off by sc5 - ehm, not the game, but it's distributors. Thanks to the developers at Maxis for about 25 years letting me play the most wonderful game which took up  lots of space on every of my hard drives since. Thanks to all modders, lotters, batters who made a tremendous effort to provide tons of unique buildings, patches, all this lovely data in the plugin folder which is the community essence of the game. And really makes it worth a 20th birthday. Love and blessings, M.</p>
+<hr />
+<p><a href="configMarkdown.html">configMarkdown</a> | <a href="devnotes.html">devnotes</a> | <a href="DiasporaCredits.html">DiasporaCredits</a> | <a href="dsp_params.html">dsp_params</a>	| <a href="dsp_readme.html">dsp_readme</a> </p>
+<hr />
+<p><em>Document Version 1.00 
+generated 6.04.2013 12:03:34</em> </p>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->
